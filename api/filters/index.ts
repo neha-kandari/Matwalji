@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb } from "../_db";
+import { getDb } from "../_db.js";
 
 const VALID_TYPES = new Set(["color", "size", "tag"]);
 

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { ObjectId } from "mongodb";
-import { getDb } from "../_db";
+import { getDb } from "../_db.js";
 
 interface FilterOptionDoc {
   type: string;

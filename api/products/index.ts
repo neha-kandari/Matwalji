@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb, getNextProductId } from "../_db";
+import { getDb, getNextProductId } from "../_db.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const db = await getDb();
