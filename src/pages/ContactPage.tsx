@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
 import { SOCIAL_LINKS } from "../data/social";
-import { CONTACT_INFO } from "../data/contact";
+import { CONTACT_INFO, GOOGLE_MAPS_URL } from "../data/contact";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
@@ -118,40 +118,71 @@ export default function ContactPage() {
 
           {/* Contact info */}
           <div className="space-y-8">
-            {[
-              { icon: Phone, title: "Call Us", lines: [CONTACT_INFO.phones.map((p) => p.display).join(" / "), "Mon–Sat, 10am–7pm IST"] },
-              { icon: Mail, title: "Email Us", lines: [CONTACT_INFO.email, "Reply within 24 hours"] },
-              { icon: MapPin, title: "Visit Us", lines: [...CONTACT_INFO.addressLines, CONTACT_INFO.landmark] },
-            ].map(({ icon: Icon, title, lines }, i) => (
-              <div key={i} className="flex gap-5">
-                <div
-                  className="w-10 h-10 border flex items-center justify-center flex-shrink-0"
-                  style={{ borderColor: "rgba(199,161,91,0.35)" }}
-                >
-                  <Icon size={15} style={{ color: "#C7A15B" }} />
-                </div>
-                <div>
-                  <p
-                    className="text-[9.5px] tracking-[0.2em] uppercase mb-1"
-                    style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}
+            {/* Call Us */}
+            <div className="flex gap-5">
+              <div className="w-10 h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: "rgba(199,161,91,0.35)" }}>
+                <Phone size={15} style={{ color: "#C7A15B" }} />
+              </div>
+              <div>
+                <p className="text-[9.5px] tracking-[0.2em] uppercase mb-1" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>
+                  Call Us
+                </p>
+                {CONTACT_INFO.phones.map((p) => (
+                  <a
+                    key={p.raw}
+                    href={`tel:+91${p.raw}`}
+                    className="block text-sm hover:text-[#C7A15B] transition-colors"
+                    style={{ color: "#252525", fontFamily: "var(--font-body)" }}
                   >
-                    {title}
-                  </p>
-                  {lines.map((l, j) => (
-                    <p
+                    {p.display}
+                  </a>
+                ))}
+                <p className="text-sm" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>Mon–Sat, 10am–7pm IST</p>
+              </div>
+            </div>
+
+            {/* Email Us */}
+            <div className="flex gap-5">
+              <div className="w-10 h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: "rgba(199,161,91,0.35)" }}>
+                <Mail size={15} style={{ color: "#C7A15B" }} />
+              </div>
+              <div>
+                <p className="text-[9.5px] tracking-[0.2em] uppercase mb-1" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>
+                  Email Us
+                </p>
+                <a
+                  href={`mailto:${CONTACT_INFO.email}`}
+                  className="block text-sm hover:text-[#C7A15B] transition-colors"
+                  style={{ color: "#252525", fontFamily: "var(--font-body)" }}
+                >
+                  {CONTACT_INFO.email}
+                </a>
+                <p className="text-sm" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>Reply within 24 hours</p>
+              </div>
+            </div>
+
+            {/* Visit Us */}
+            <div className="flex gap-5">
+              <div className="w-10 h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: "rgba(199,161,91,0.35)" }}>
+                <MapPin size={15} style={{ color: "#C7A15B" }} />
+              </div>
+              <div>
+                <p className="text-[9.5px] tracking-[0.2em] uppercase mb-1" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>
+                  Visit Us
+                </p>
+                <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="block group">
+                  {[...CONTACT_INFO.addressLines, CONTACT_INFO.landmark].map((l, j) => (
+                    <span
                       key={j}
-                      className="text-sm"
-                      style={{
-                        color: j === 0 ? "#252525" : "#7a6a5a",
-                        fontFamily: "var(--font-body)",
-                      }}
+                      className={`block text-sm transition-colors group-hover:text-[#C7A15B] ${j === 0 ? "text-[#252525]" : "text-[#7a6a5a]"}`}
+                      style={{ fontFamily: "var(--font-body)" }}
                     >
                       {l}
-                    </p>
+                    </span>
                   ))}
-                </div>
+                </a>
               </div>
-            ))}
+            </div>
 
             {/* WhatsApp CTA */}
             <a

@@ -12,3 +12,10 @@ export const CONTACT_INFO = {
     { display: "+91 99903 94567", raw: "9990394567" },
   ],
 };
+
+// Universal Google Maps search link (works on mobile — opens the Maps app —
+// and desktop, without needing an exact geocoded address/place ID).
+export const GOOGLE_MAPS_URL =
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    [...CONTACT_INFO.addressLines, CONTACT_INFO.landmark].join(", ")
+  )}`;

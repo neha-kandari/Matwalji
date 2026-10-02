@@ -1,7 +1,7 @@
 import { Instagram, Facebook, Phone, Mail, MapPin } from "lucide-react";
 import MatwaljiLogo from "./MatwaljiLogo";
 import { SOCIAL_LINKS } from "../data/social";
-import { CONTACT_INFO } from "../data/contact";
+import { CONTACT_INFO, GOOGLE_MAPS_URL } from "../data/contact";
 import type { Page } from "../types";
 
 interface Props {
@@ -128,21 +128,48 @@ export default function Footer({ setPage }: Props) {
             >
               Contact
             </p>
-            {[
-              { icon: Phone, text: CONTACT_INFO.phones.map((p) => p.display).join(" / ") },
-              { icon: Mail, text: CONTACT_INFO.email },
-              { icon: MapPin, text: `${CONTACT_INFO.addressLines.join(", ")}, ${CONTACT_INFO.landmark}` },
-            ].map(({ icon: Icon, text }, i) => (
-              <div key={i} className="flex items-start gap-2.5 mb-3">
-                <Icon size={12} className="mt-0.5 flex-shrink-0" style={{ color: "#C7A15B" }} />
-                <span
-                  className="text-xs"
-                  style={{ color: "rgba(232,210,166,0.45)", fontFamily: "var(--font-body)" }}
-                >
-                  {text}
-                </span>
+            {/* Phones */}
+            <div className="flex items-start gap-2.5 mb-3">
+              <Phone size={12} className="mt-0.5 flex-shrink-0" style={{ color: "#C7A15B" }} />
+              <div className="flex flex-col gap-0.5">
+                {CONTACT_INFO.phones.map((p) => (
+                  <a
+                    key={p.raw}
+                    href={`tel:+91${p.raw}`}
+                    className="text-xs hover:text-[#C7A15B] transition-colors"
+                    style={{ color: "rgba(232,210,166,0.45)", fontFamily: "var(--font-body)" }}
+                  >
+                    {p.display}
+                  </a>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Email */}
+            <div className="flex items-start gap-2.5 mb-3">
+              <Mail size={12} className="mt-0.5 flex-shrink-0" style={{ color: "#C7A15B" }} />
+              <a
+                href={`mailto:${CONTACT_INFO.email}`}
+                className="text-xs hover:text-[#C7A15B] transition-colors"
+                style={{ color: "rgba(232,210,166,0.45)", fontFamily: "var(--font-body)" }}
+              >
+                {CONTACT_INFO.email}
+              </a>
+            </div>
+
+            {/* Address */}
+            <div className="flex items-start gap-2.5 mb-3">
+              <MapPin size={12} className="mt-0.5 flex-shrink-0" style={{ color: "#C7A15B" }} />
+              <a
+                href={GOOGLE_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs hover:text-[#C7A15B] transition-colors"
+                style={{ color: "rgba(232,210,166,0.45)", fontFamily: "var(--font-body)" }}
+              >
+                {`${CONTACT_INFO.addressLines.join(", ")}, ${CONTACT_INFO.landmark}`}
+              </a>
+            </div>
           </div>
         </div>
 
