@@ -108,26 +108,43 @@ export default function ProductCard({ product, wishlisted, onWishlist, onView }:
       </div>
 
       {/* ── Minimal info bar ── */}
-      <div className="px-3 py-3 flex items-center justify-between gap-2">
-        {/* Price */}
-        <span
+      <div className="px-3 pt-3 pb-3">
+        {/* Name */}
+        <h3
+          className="truncate mb-1.5"
           style={{
-            fontFamily: "var(--font-price)",
-            fontSize: "0.9rem",
+            fontFamily: "var(--font-display)",
+            fontSize: "0.95rem",
             color: "#2A0710",
-            fontWeight: 600,
+            fontWeight: 400,
+            lineHeight: 1.3,
           }}
+          title={product.name}
         >
-          {product.price}
-        </span>
+          {product.name}
+        </h3>
 
-        {/* Rating pill */}
-        <div
-          className="flex items-center gap-1 px-2 py-1 rounded-sm"
-          style={{ background: "rgba(199,161,91,0.1)", border: "1px solid rgba(199,161,91,0.25)" }}
-        >
-          <Star size={9} fill="#C7A15B" style={{ color: "#C7A15B" }} />
-          <span style={{ fontFamily: "var(--font-body)", fontSize: "0.68rem", color: "#2A0710", fontWeight: 600, letterSpacing: "0.04em" }}>5.0</span>
+        <div className="flex items-center justify-between gap-2">
+          {/* Price */}
+          <span
+            style={{
+              fontFamily: "var(--font-price)",
+              fontSize: "0.9rem",
+              color: "#2A0710",
+              fontWeight: 600,
+            }}
+          >
+            {product.price}
+          </span>
+
+          {/* Rating pill */}
+          <div
+            className="flex items-center gap-1 px-2 py-1 rounded-sm"
+            style={{ background: "rgba(199,161,91,0.1)", border: "1px solid rgba(199,161,91,0.25)" }}
+          >
+            <Star size={9} fill="#C7A15B" style={{ color: "#C7A15B" }} />
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.68rem", color: "#2A0710", fontWeight: 600, letterSpacing: "0.04em" }}>5.0</span>
+          </div>
         </div>
       </div>
     </div>
