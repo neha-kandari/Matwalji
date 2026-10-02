@@ -25,12 +25,14 @@ export interface Product {
   category: CategorySlug;
   image: string;
   images: string[];
-  video?: string;
   tag?: string;
   description: string;
   colors: string[];
   sizes?: string[];
   blouseDetails?: string;
+  // An Instagram reel/post URL for this product. Doubles as the "video" shown
+  // in the product gallery (which links out to Instagram rather than hosting
+  // a file) and the "visit us on Instagram" CTA.
   instagramUrl?: string;
 }
 

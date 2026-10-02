@@ -22,8 +22,7 @@ export const ALL_PRODUCTS: Product[] = [
     colors: ["Scarlet", "Ivory", "Deep Maroon"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     blouseDetails: "Heavily embroidered backless blouse included. Custom tailoring available upon enquiry.",
-    video: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-    instagramUrl: "https://www.instagram.com/matwalji/",
+    instagramUrl: "https://www.instagram.com/reel/Dd_WTMuSmY8/",
   },
   {
     id: 2,

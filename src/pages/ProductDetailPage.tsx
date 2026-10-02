@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, Star, Heart, PlayCircle, Instagram, Facebook, Phone, Check } from "lucide-react";
+import { ChevronRight, Star, Heart, PlayCircle, Instagram, Facebook, Phone, Check, ExternalLink } from "lucide-react";
 
 const COLOR_HEX: Record<string, string> = {
   scarlet: "#9B1B30", ivory: "#FFFDF0", "deep maroon": "#4A0010", maroon: "#6D0010",
@@ -34,7 +34,9 @@ import { CATEGORY_META } from "../data/categories";
 import { SOCIAL_LINKS } from "../data/social";
 import type { Page, Product } from "../types";
 
-type MediaItem = { type: "image"; src: string } | { type: "video"; src: string };
+// A product's "video" is an Instagram reel/post, not a self-hosted file —
+// clicking it sends the visitor straight to that reel on Instagram.
+type MediaItem = { type: "image"; src: string } | { type: "video"; instagramUrl: string };
 
 interface Props {
   product: Product;
@@ -70,7 +72,7 @@ export default function ProductDetailPage({
 
   const media: MediaItem[] = [
     ...product.images.map((src): MediaItem => ({ type: "image", src })),
-    ...(product.video ? [{ type: "video", src: product.video } as MediaItem] : []),
+    ...(product.instagramUrl ? [{ type: "video", instagramUrl: product.instagramUrl } as MediaItem] : []),
   ];
   const activeMedia = media[activeImg] ?? media[0];
 
@@ -127,25 +129,34 @@ export default function ProductDetailPage({
             {/* Thumbnails */}
             {media.length > 1 && (
               <div className="flex flex-col gap-2 w-16 flex-shrink-0">
-                {media.map((m, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImg(i)}
-                    className="relative w-16 h-20 overflow-hidden border-2 transition-all duration-200"
-                    style={{ borderColor: activeImg === i ? "#C7A15B" : "transparent" }}
-                  >
-                    <img
-                      src={m.type === "video" ? product.image : m.src}
-                      alt=""
-                      className="w-full h-full object-cover object-top"
-                    />
-                    {m.type === "video" && (
+                {media.map((m, i) =>
+                  m.type === "video" ? (
+                    <a
+                      key={i}
+                      href={m.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setActiveImg(i)}
+                      title="Watch on Instagram"
+                      className="relative w-16 h-20 overflow-hidden border-2 transition-all duration-200"
+                      style={{ borderColor: activeImg === i ? "#C7A15B" : "transparent" }}
+                    >
+                      <img src={product.image} alt="" className="w-full h-full object-cover object-top" />
                       <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(42,7,16,0.45)" }}>
                         <PlayCircle size={18} color="#fff" />
                       </div>
-                    )}
-                  </button>
-                ))}
+                    </a>
+                  ) : (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      className="relative w-16 h-20 overflow-hidden border-2 transition-all duration-200"
+                      style={{ borderColor: activeImg === i ? "#C7A15B" : "transparent" }}
+                    >
+                      <img src={m.src} alt="" className="w-full h-full object-cover object-top" />
+                    </button>
+                  )
+                )}
               </div>
             )}
 
@@ -155,14 +166,31 @@ export default function ProductDetailPage({
               style={{ aspectRatio: "3/4" }}
             >
               {activeMedia?.type === "video" ? (
-                <video
-                  key={activeMedia.src}
-                  src={activeMedia.src}
-                  poster={product.image}
-                  controls
-                  playsInline
-                  className="w-full h-full object-cover object-top"
-                />
+                <a
+                  href={activeMedia.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block w-full h-full"
+                >
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover object-top" />
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 transition-colors duration-300 group-hover:bg-black/10"
+                    style={{ background: "rgba(42,7,16,0.35)" }}
+                  >
+                    <div
+                      className="w-16 h-16 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                      style={{ background: "rgba(255,255,255,0.95)" }}
+                    >
+                      <PlayCircle size={30} style={{ color: "#2A0710" }} />
+                    </div>
+                    <span
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-[0.18em] uppercase"
+                      style={{ background: "#2A0710", color: "#E8D2A6", fontFamily: "var(--font-body)" }}
+                    >
+                      Watch on Instagram <ExternalLink size={11} />
+                    </span>
+                  </div>
+                </a>
               ) : (
                 <img
                   src={activeMedia?.src || product.image}

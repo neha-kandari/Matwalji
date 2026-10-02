@@ -271,17 +271,10 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
     images: initial.images ?? [],
   });
   const [errors, setErrors]         = useState<string[]>([]);
-  const [mediaTab, setMediaTab]     = useState<"image" | "video">("image");
   const [imgMode, setImgMode]       = useState<"upload" | "url">("upload");
   const [uploading, setUploading]   = useState(false);
-  const [videoMode, setVideoMode]   = useState<"upload" | "url">("upload");
-  const [videoUploading, setVideoUploading] = useState(false);
-  const [videoError, setVideoError] = useState<string | null>(null);
   const [saving, setSaving]         = useState(false);
   const fileInputRef                = useRef<HTMLInputElement>(null);
-  const videoFileInputRef           = useRef<HTMLInputElement>(null);
-
-  const MAX_VIDEO_MB = 4;
 
   // Downscales + re-encodes a photo before it's embedded as base64. A raw
   // phone/camera photo can be several MB — well past what fits in a request
@@ -334,24 +327,6 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
     } finally {
       setUploading(false);
     }
-  }
-
-  function handleVideoFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setVideoError(null);
-    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
-      setVideoError(`That video is too large (max ${MAX_VIDEO_MB}MB for direct upload). For longer clips, paste a hosted link instead.`);
-      if (videoFileInputRef.current) videoFileInputRef.current.value = "";
-      return;
-    }
-    setVideoUploading(true);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      set("video", ev.target?.result as string);
-      setVideoUploading(false);
-    };
-    reader.readAsDataURL(file);
   }
 
   function set<K extends keyof Product>(key: K, val: Product[K]) {
@@ -516,41 +491,18 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
             />
           </Field>
 
-          {/* Main image + video — combined, switch with the tabs below */}
-          <Field label={mediaTab === "image" ? "Main Image *" : "Product Video (optional)"}>
-            {/* Image / Video tabs */}
-            <div className="flex mb-3 border" style={{ borderColor: "rgba(199,161,91,0.3)" }}>
-              {([
-                { id: "image" as const, label: "Image" },
-                { id: "video" as const, label: "Video" },
-              ]).map(({ id, label }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setMediaTab(id)}
-                  className="flex-1 py-2 text-[10px] tracking-widest uppercase transition-all"
-                  style={{
-                    background: mediaTab === id ? "#2A0710" : "white",
-                    color: mediaTab === id ? "#C7A15B" : "#3a2a1a",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* Upload / URL sub-toggle, shared style for both tabs */}
+          {/* Main image */}
+          <Field label="Main Image *">
             <div className="flex gap-2 mb-3">
               {(["upload", "url"] as const).map((m) => (
                 <button
                   key={m}
                   type="button"
-                  onClick={() => (mediaTab === "image" ? setImgMode(m) : setVideoMode(m))}
+                  onClick={() => setImgMode(m)}
                   className="px-3 py-1.5 text-[10px] tracking-widest uppercase border transition-all"
                   style={{
-                    background: (mediaTab === "image" ? imgMode : videoMode) === m ? "#C7A15B" : "transparent",
-                    color: (mediaTab === "image" ? imgMode : videoMode) === m ? "#2A0710" : "#C7A15B",
+                    background: imgMode === m ? "#C7A15B" : "transparent",
+                    color: imgMode === m ? "#2A0710" : "#C7A15B",
                     borderColor: "#C7A15B",
                     fontFamily: "var(--font-body)",
                   }}
@@ -559,74 +511,34 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
                 </button>
               ))}
             </div>
-
-            {mediaTab === "image" ? (
+            {imgMode === "upload" ? (
               <>
-                {imgMode === "upload" ? (
-                  <>
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed transition-all hover:border-[#C7A15B]"
-                      style={{ borderColor: "rgba(199,161,91,0.3)", color: "#C7A15B" }}
-                    >
-                      <Upload size={22} />
-                      <span className="text-xs" style={{ fontFamily: "var(--font-body)", color: "#7a6a5a" }}>
-                        {uploading ? "Processing…" : "Click to choose an image"}
-                      </span>
-                    </button>
-                  </>
-                ) : (
-                  <input
-                    className={inputCls}
-                    style={inputStyle}
-                    value={form.image.startsWith("data:") ? "" : form.image}
-                    onChange={(e) => set("image", e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                  />
-                )}
-                {form.image && (
-                  <div className="mt-3 w-20 h-24 overflow-hidden border" style={{ borderColor: "rgba(199,161,91,0.2)" }}>
-                    <img src={form.image} alt="preview" className="w-full h-full object-cover object-top" />
-                  </div>
-                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed transition-all hover:border-[#C7A15B]"
+                  style={{ borderColor: "rgba(199,161,91,0.3)", color: "#C7A15B" }}
+                >
+                  <Upload size={22} />
+                  <span className="text-xs" style={{ fontFamily: "var(--font-body)", color: "#7a6a5a" }}>
+                    {uploading ? "Processing…" : "Click to choose an image"}
+                  </span>
+                </button>
               </>
             ) : (
-              <>
-                {videoMode === "upload" ? (
-                  <>
-                    <input ref={videoFileInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoFileChange} />
-                    <button
-                      type="button"
-                      onClick={() => videoFileInputRef.current?.click()}
-                      className="w-full flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed transition-all hover:border-[#C7A15B]"
-                      style={{ borderColor: "rgba(199,161,91,0.3)", color: "#C7A15B" }}
-                    >
-                      <Upload size={22} />
-                      <span className="text-xs" style={{ fontFamily: "var(--font-body)", color: "#7a6a5a" }}>
-                        {videoUploading ? "Processing…" : `Click to choose a video (max ${MAX_VIDEO_MB}MB)`}
-                      </span>
-                    </button>
-                    {videoError && (
-                      <p className="mt-2 text-xs" style={{ color: "#9B1B30", fontFamily: "var(--font-body)" }}>{videoError}</p>
-                    )}
-                  </>
-                ) : (
-                  <input
-                    className={inputCls}
-                    style={inputStyle}
-                    value={form.video?.startsWith("data:") ? "" : form.video || ""}
-                    onChange={(e) => set("video", e.target.value || undefined)}
-                    placeholder="https://.../product-video.mp4"
-                  />
-                )}
-                {form.video && (
-                  <div className="mt-3 w-28 h-36 overflow-hidden border" style={{ borderColor: "rgba(199,161,91,0.2)" }}>
-                    <video src={form.video} muted controls className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </>
+              <input
+                className={inputCls}
+                style={inputStyle}
+                value={form.image.startsWith("data:") ? "" : form.image}
+                onChange={(e) => set("image", e.target.value)}
+                placeholder="https://images.unsplash.com/..."
+              />
+            )}
+            {form.image && (
+              <div className="mt-3 w-20 h-24 overflow-hidden border" style={{ borderColor: "rgba(199,161,91,0.2)" }}>
+                <img src={form.image} alt="preview" className="w-full h-full object-cover object-top" />
+              </div>
             )}
           </Field>
 
@@ -689,14 +601,17 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
           </Field>
 
           {/* Instagram */}
-          <Field label="Instagram Post/Reel Link (optional)">
+          <Field label="Instagram Reel/Post Link (optional)">
             <input
               className={inputCls}
               style={inputStyle}
               value={form.instagramUrl || ""}
               onChange={(e) => set("instagramUrl", e.target.value || undefined)}
-              placeholder="https://www.instagram.com/p/..."
+              placeholder="https://www.instagram.com/reel/..."
             />
+            <p className="mt-1.5 text-[10.5px]" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+              If set, this also appears as the product's video in the gallery — clicking it opens this reel on Instagram.
+            </p>
           </Field>
 
           {/* Actions */}
