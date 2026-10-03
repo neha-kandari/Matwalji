@@ -53,8 +53,8 @@ function Hero({ setPage }: { setPage: (p: Page) => void }) {
         className="absolute inset-0 w-full h-full object-cover object-top"
       />
 
-      {/* Light overlay — just enough to keep the text legible */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(26,5,8,0.5) 0%, rgba(26,5,8,0.08) 45%, rgba(26,5,8,0.2) 100%)" }} />
+      {/* Subtle black overlay — keeps the centered text legible without hiding the image */}
+      <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.32)" }} />
 
       {/* Gold left accent */}
       <div className="absolute left-0 top-0 bottom-0 z-20 w-[3px]" style={{ background: "linear-gradient(to bottom, transparent 10%, #C7A15B 50%, transparent 90%)" }} />
@@ -84,9 +84,9 @@ function Hero({ setPage }: { setPage: (p: Page) => void }) {
         <button
           onClick={() => setPage("bridal-lehengas")}
           className="group flex items-center gap-2.5 mt-8 px-7 py-3.5 text-[10.5px] tracking-[0.24em] uppercase transition-all duration-300"
-          style={{ background: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)", fontWeight: 700 }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#E8D2A6"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#C7A15B"; }}
+          style={{ background: "#2A0710", color: "#C7A15B", fontFamily: "var(--font-body)", fontWeight: 700 }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A1022"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#2A0710"; }}
         >
           Explore Products
           <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
