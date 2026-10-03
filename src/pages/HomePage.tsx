@@ -78,7 +78,8 @@ function Hero({ setPage }: { setPage: (p: Page) => void }) {
             letterSpacing: "-0.01em",
           }}
         >
-          Elegance Woven Into Every Thread
+          <span className="block">Draped In</span>
+          <span className="block" style={{ color: "#C7A15B", fontStyle: "italic" }}>Elegance</span>
         </h1>
         <button
           onClick={() => setPage("bridal-lehengas")}
