@@ -193,7 +193,7 @@ const CATEGORY_CONFIG = [
     label: "Non-Bridal Lehengas",
     from: "From ₹7,000",
     count: "6 pieces",
-    img: "https://images.unsplash.com/photo-1610047614256-023d7c028d0b?w=700&h=500&fit=crop&auto=format",
+    img: "/lehenga/lehenga2.png",
   },
   {
     slug: "sarees-silk" as CategorySlug,
