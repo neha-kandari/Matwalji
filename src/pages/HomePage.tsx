@@ -186,7 +186,7 @@ const CATEGORY_CONFIG = [
     label: "Bridal Lehengas",
     from: "From ₹10,000",
     count: "6 exclusive pieces",
-    img: "https://images.unsplash.com/photo-1654764746225-e63f5e90facd?w=900&h=1200&fit=crop&auto=format",
+    img: "/lehenga/lehenga.png",
   },
   {
     slug: "non-bridal-lehengas" as CategorySlug,
