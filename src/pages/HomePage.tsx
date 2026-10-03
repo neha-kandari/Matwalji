@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { ArrowRight, ArrowUpRight, Gem, Award, Sparkles, Shield, Star, Quote, Instagram } from "lucide-react";
 import SectionHeader from "../components/SectionHeader";
 import ProductCard from "../components/ProductCard";
 import Newsletter from "../components/Newsletter";
 import GoldDivider from "../components/GoldDivider";
-import type { Page, Product, CategorySlug } from "../types";
+import type { Page, Product, CategorySlug, HomeSection, HomeSectionId } from "../types";
 
 // ─── Marquee Ticker ────────────────────────────────────────────────────────────
 const TICKER_ITEMS = [
@@ -46,7 +46,7 @@ function MarqueeTicker() {
 // ─── Hero ──────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="relative min-h-[480px] overflow-hidden" style={{ height: "80vh" }}>
+    <section className="relative h-[60vh] sm:h-[80vh] sm:min-h-[480px] overflow-hidden">
       <picture>
         {/* Portrait crop on small screens, wide crop from sm (640px) up */}
         <source media="(max-width: 639px)" srcSet="/hero2.png" />
@@ -214,7 +214,7 @@ const CATEGORY_CONFIG = [
     label: "Net Sarees",
     from: "From ₹9,000",
     count: "5 pieces",
-    img: "/sarees/net.webp",
+    img: "/sarees/net saree.png",
   },
 ];
 
@@ -342,54 +342,88 @@ function ShopByCategory({ setPage }: { setPage: (p: Page) => void }) {
 }
 
 // ─── Craftsmanship Story ────────────────────────────────────────────────────────
+function useRevealOnScroll<T extends Element>() {
+  const ref = useRef<T | null>(null);
+  const [revealed, setRevealed] = useState(
+    () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  );
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || revealed) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [revealed]);
+
+  return { ref, revealed };
+}
+
 function CraftsmanshipStory({ setPage }: { setPage: (p: Page) => void }) {
+  const { ref, revealed } = useRevealOnScroll<HTMLElement>();
+  const fadeUp = (delay: number): CSSProperties => ({
+    opacity: revealed ? 1 : 0,
+    transform: revealed ? "translateY(0)" : "translateY(16px)",
+    transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+  });
+
   return (
-    <section className="overflow-hidden" style={{ background: "#2A0710" }}>
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Image */}
-          <div className="relative h-[420px] lg:h-auto overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=900&h=1000&fit=crop&auto=format"
-              alt="Heritage craftsmanship"
-              className="w-full h-full object-cover object-top"
-            />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent 60%, rgba(42,7,16,0.7) 100%)" }} />
-            {/* Floating stat */}
-            <div className="absolute bottom-8 left-8 border p-5" style={{ background: "rgba(42,7,16,0.82)", borderColor: "rgba(199,161,91,0.3)", backdropFilter: "blur(4px)" }}>
-              <div style={{ fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "2.5rem", fontWeight: 300, lineHeight: 1 }}>1998</div>
-              <div className="text-[9px] tracking-[0.25em] uppercase mt-1" style={{ color: "rgba(232,210,166,0.55)", fontFamily: "var(--font-body)" }}>Est. in Surat, India</div>
-            </div>
+    <section ref={ref} className="overflow-hidden" style={{ background: "#2A0710" }}>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[2fr_3fr]">
+        <div className="relative min-h-[240px] overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=900&h=1000&fit=crop&auto=format"
+            alt="Heritage craftsmanship"
+            className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[1.6s] ease-out"
+            style={{ transform: revealed ? "scale(1)" : "scale(1.08)" }}
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent 60%, rgba(42,7,16,0.7) 100%)" }} />
+          <div
+            className="absolute bottom-5 left-5 border px-4 py-3"
+            style={{ ...fadeUp(500), background: "rgba(42,7,16,0.82)", borderColor: "rgba(199,161,91,0.3)", backdropFilter: "blur(4px)" }}
+          >
+            <div style={{ fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "1.9rem", fontWeight: 300, lineHeight: 1 }}>1998</div>
+            <div className="text-[9px] tracking-[0.25em] uppercase mt-1" style={{ color: "rgba(232,210,166,0.55)", fontFamily: "var(--font-body)" }}>Est. in Surat, India</div>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-center px-8 lg:px-14 py-12 lg:py-14">
+          <div className="flex items-center gap-3 mb-4" style={fadeUp(100)}>
+            <div className="h-px w-8" style={{ background: "#C7A15B" }} />
+            <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Our Heritage</span>
           </div>
 
-          {/* Text */}
-          <div className="flex flex-col justify-center px-10 lg:px-16 py-16 lg:py-20">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="h-px w-8" style={{ background: "#C7A15B" }} />
-              <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Our Heritage</span>
-            </div>
+          <h2 style={{ ...fadeUp(200), fontFamily: "var(--font-display)", fontSize: "clamp(1.6rem, 2.6vw, 2.2rem)", color: "#F8F4EF", fontWeight: 300, lineHeight: 1.2 }}>
+            Two Decades of <em className="not-italic" style={{ color: "#C7A15B" }}>Woven Stories</em>
+          </h2>
 
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 3.5vw, 3rem)", color: "#F8F4EF", fontWeight: 300, lineHeight: 1.15 }}>
-              Two Decades of <em className="not-italic" style={{ color: "#C7A15B" }}>Woven Stories</em>
-            </h2>
-
-            <GoldDivider className="my-7 max-w-[260px]" />
-
-            <p className="text-sm leading-[1.9] mb-6" style={{ color: "rgba(232,210,166,0.65)", fontFamily: "var(--font-body)" }}>
-              Since 1998, we have traveled to the looms of Varanasi, the silk farms of Kanchipuram, and the ateliers of Chanderi to bring you India's finest textiles — curated by hand, presented with purpose.
-            </p>
-            <p className="text-sm leading-[1.9] mb-10" style={{ color: "rgba(232,210,166,0.65)", fontFamily: "var(--font-body)" }}>
-              Every piece in our collection carries the fingerprints of master artisans whose families have practiced their craft for generations. This is not fashion — it is a living archive.
-            </p>
-
-            <button
-              onClick={() => setPage("about")}
-              className="group self-start flex items-center gap-2.5 text-[11px] tracking-[0.25em] uppercase border-b pb-1 transition-all duration-300 hover:gap-4"
-              style={{ color: "#C7A15B", borderColor: "rgba(199,161,91,0.4)", fontFamily: "var(--font-body)" }}
-            >
-              Our Story <ArrowRight size={12} />
-            </button>
+          <div style={fadeUp(300)}>
+            <GoldDivider className="my-5 max-w-[180px]" />
           </div>
+
+          <p className="text-sm leading-[1.8] mb-4" style={{ ...fadeUp(400), color: "rgba(232,210,166,0.65)", fontFamily: "var(--font-body)" }}>
+            Since 1998, we have traveled to the looms of Varanasi, the silk farms of Kanchipuram and the ateliers of Chanderi to bring you India's finest textiles, curated by hand.
+          </p>
+
+          <p className="text-sm leading-[1.8] mb-7" style={{ ...fadeUp(450), color: "rgba(232,210,166,0.65)", fontFamily: "var(--font-body)" }}>
+            Every piece carries the fingerprints of master artisans whose families have practiced their craft for generations. We see each saree and lehenga as a living archive, not a passing trend.
+          </p>
+
+          <button
+            onClick={() => setPage("about")}
+            className="group self-start flex items-center gap-2.5 text-[11px] tracking-[0.25em] uppercase border-b pb-1 transition-all duration-300 hover:gap-4"
+            style={{ ...fadeUp(500), color: "#C7A15B", borderColor: "rgba(199,161,91,0.4)", fontFamily: "var(--font-body)" }}
+          >
+            Our Story <ArrowRight size={12} />
+          </button>
         </div>
       </div>
     </section>
@@ -447,15 +481,27 @@ function ProductGridSection({
 }
 
 // ─── Featured Products ──────────────────────────────────────────────────────────
-function FeaturedProducts({ wishlist, onWishlist, onViewProduct, products = [] }: {
+function pickProducts(section: HomeSection, products: Product[], isAuto: (p: Product) => boolean): Product[] {
+  const picked = section.mode === "manual"
+    ? section.productIds.flatMap((id) => {
+        const product = products.find((p) => p.id === id);
+        return product ? [product] : [];
+      })
+    : products.filter((p) => isAuto(p) && (section.categories.length === 0 || section.categories.includes(p.category)));
+  return picked.slice(0, section.maxItems);
+}
+
+function FeaturedProducts({ section, wishlist, onWishlist, onViewProduct, products = [] }: {
+  section: HomeSection;
   wishlist: Product[]; onWishlist: (p: Product) => void; onViewProduct: (p: Product) => void; products?: Product[];
 }) {
-  const featured = products.filter((p) => p.tag).slice(0, 8);
+  const featured = pickProducts(section, products, (p) => !!p.tag);
+  if (!section.visible || featured.length === 0) return null;
   return (
     <ProductGridSection
-      eyebrow="Handpicked"
-      title="Featured Pieces"
-      subtitle="Our most beloved creations — each one a dialogue between tradition and artistry."
+      eyebrow={section.eyebrow}
+      title={section.title}
+      subtitle={section.subtitle}
       items={featured}
       wishlist={wishlist}
       onWishlist={onWishlist}
@@ -541,16 +587,17 @@ function HScrollRow({
 }
 
 // ─── New Arrivals ───────────────────────────────────────────────────────────────
-function NewArrivals({ wishlist, onWishlist, onViewProduct, products = [] }: {
+function NewArrivals({ section, wishlist, onWishlist, onViewProduct, products = [] }: {
+  section: HomeSection;
   wishlist: Product[]; onWishlist: (p: Product) => void; onViewProduct: (p: Product) => void; products?: Product[];
 }) {
-  const arrivals = products.filter((p) => p.tag === "New Arrival");
-  if (arrivals.length === 0) return null;
+  const arrivals = pickProducts(section, products, (p) => p.tag === "New Arrival");
+  if (!section.visible || arrivals.length === 0) return null;
   return (
     <HScrollRow
-      eyebrow="Just In"
-      title="New Arrivals"
-      subtitle="Fresh from the atelier — the latest additions to our curated collection."
+      eyebrow={section.eyebrow}
+      title={section.title}
+      subtitle={section.subtitle}
       items={arrivals}
       wishlist={wishlist}
       onWishlist={onWishlist}
@@ -589,9 +636,9 @@ const WHY_ITEMS = [
 
 function WhySection() {
   return (
-    <section className="py-20 lg:py-28 lg:px-12 overflow-hidden" style={{ background: "#2A0710" }}>
+    <section className="py-20 lg:py-28 lg:px-12 overflow-hidden" style={{ background: "#FFFFFF" }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-0">
-        <SectionHeader eyebrow="Our Promise" title="The MATWALJI Difference" light />
+        <SectionHeader eyebrow="Our Promise" title="The MATWALJI Difference" />
         <div
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-px sm:bg-[rgba(199,161,91,0.12)] sm:overflow-visible lg:grid-cols-4"
           style={{ scrollbarWidth: "none" }}
@@ -599,15 +646,15 @@ function WhySection() {
           {WHY_ITEMS.map(({ icon: Icon, title, desc }, i) => (
             <div
               key={i}
-              className="p-8 lg:p-10 text-center group transition-colors duration-300 hover:bg-[#4A1022] flex-shrink-0 w-[240px] snap-start border sm:w-auto sm:border-0"
-              style={{ background: "#2A0710", borderColor: "rgba(199,161,91,0.15)" }}
+              className="p-8 lg:p-10 text-center group transition-colors duration-300 hover:bg-[#FBF7F1] flex-shrink-0 w-[240px] snap-start border sm:w-auto sm:border-0"
+              style={{ background: "#FFFFFF", borderColor: "rgba(199,161,91,0.15)" }}
             >
               <div className="inline-flex items-center justify-center w-12 h-12 mb-5 border transition-all duration-300 group-hover:bg-[#C7A15B] group-hover:border-[#C7A15B]"
-                style={{ borderColor: "rgba(199,161,91,0.35)" }}>
+                style={{ background: "#2A0710", borderColor: "#2A0710" }}>
                 <Icon size={19} style={{ color: "#C7A15B" }} />
               </div>
-              <h3 className="mb-3" style={{ fontFamily: "var(--font-display)", color: "#E8D2A6", fontSize: "1.25rem", fontWeight: 400 }}>{title}</h3>
-              <p className="text-xs leading-relaxed" style={{ color: "rgba(232,210,166,0.52)", fontFamily: "var(--font-body)" }}>{desc}</p>
+              <h3 className="mb-3" style={{ fontFamily: "var(--font-display)", color: "#2A0710", fontSize: "1.25rem", fontWeight: 400 }}>{title}</h3>
+              <p className="text-xs leading-relaxed" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{desc}</p>
             </div>
           ))}
         </div>
@@ -620,22 +667,23 @@ function WhySection() {
 function BridalBanner({ setPage }: { setPage: (p: Page) => void }) {
   return (
     <section className="relative overflow-hidden" style={{ minHeight: 500 }}>
-      <img src="https://images.unsplash.com/photo-1570212773364-e30cd076539e?w=1800&h=800&fit=crop&auto=format"
+      <img src="/exclusiveYours.png"
         alt="Bridal collection" className="absolute inset-0 w-full h-full object-cover object-top" />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(42,7,16,0.94) 0%, rgba(42,7,16,0.52) 55%, rgba(42,7,16,0.1) 100%)" }} />
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-24 flex items-center" style={{ minHeight: 500 }}>
-        <div className="max-w-xl">
+      <div className="absolute inset-0" style={{ background: "rgba(42,7,16,0.6)" }} />
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-24 flex items-center justify-center text-center" style={{ minHeight: 500 }}>
+        <div className="max-w-xl mx-auto flex flex-col items-center">
           <div className="flex items-center gap-3 mb-5">
             <div className="h-px w-10" style={{ background: "#C7A15B" }} />
             <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Exclusively Yours</span>
+            <div className="h-px w-10" style={{ background: "#C7A15B" }} />
           </div>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2.4rem, 5vw, 4.2rem)", color: "#F8F4EF", fontWeight: 300, lineHeight: 1.05 }}>
             Begin Your<br /><em className="not-italic" style={{ color: "#C7A15B" }}>Bridal</em> Journey<br />With Us
           </h2>
-          <p className="mt-5 mb-10 text-sm leading-relaxed max-w-sm" style={{ color: "rgba(232,210,166,0.68)", fontFamily: "var(--font-body)" }}>
+          <p className="mt-5 mb-10 text-sm leading-relaxed max-w-sm mx-auto" style={{ color: "rgba(232,210,166,0.68)", fontFamily: "var(--font-body)" }}>
             From ₹10,000 onwards — discover bridal lehengas that honour your individuality and our shared heritage. Every piece tells your story.
           </p>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-4 flex-wrap justify-center">
             <button onClick={() => setPage("bridal-lehengas")}
               className="group flex items-center gap-2.5 px-8 py-4 text-[11px] tracking-[0.25em] uppercase transition-all duration-300"
               style={{ background: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)", fontWeight: 600 }}>
@@ -654,16 +702,8 @@ function BridalBanner({ setPage }: { setPage: (p: Page) => void }) {
 }
 
 // ─── Lookbook Gallery ───────────────────────────────────────────────────────────
-const GALLERY_IMGS = [
-  { src: "https://images.unsplash.com/photo-1654764746225-e63f5e90facd?w=500&h=650&fit=crop&auto=format", span: "row-span-2" },
-  { src: "https://images.unsplash.com/photo-1727430228383-aa1fb59db8bf?w=500&h=380&fit=crop&auto=format", span: "" },
-  { src: "https://images.unsplash.com/photo-1619516388835-2b60acc4049e?w=500&h=380&fit=crop&auto=format", span: "" },
-  { src: "https://images.unsplash.com/photo-1610047614256-023d7c028d0b?w=500&h=650&fit=crop&auto=format", span: "row-span-2" },
-  { src: "https://images.unsplash.com/photo-1692850852630-495a2145c2a4?w=500&h=380&fit=crop&auto=format", span: "" },
-  { src: "https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=500&h=380&fit=crop&auto=format", span: "" },
-];
-
-function LookbookGallery() {
+function LookbookGallery({ section }: { section: HomeSection }) {
+  if (!section.visible || section.images.length === 0) return null;
   return (
     <section className="py-20 lg:py-28 px-6 lg:px-12" style={{ background: "#F8F4EF" }}>
       <div className="max-w-7xl mx-auto">
@@ -671,22 +711,24 @@ function LookbookGallery() {
           <div>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-px w-10" style={{ background: "#C7A15B" }} />
-              <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Real Moments</span>
+              <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>{section.eyebrow}</span>
             </div>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 4vw, 3.4rem)", color: "#2A0710", fontWeight: 300, lineHeight: 1.1 }}>
-              Captured in MATWALJI
+              {section.title}
             </h2>
           </div>
-          <div className="flex items-center gap-2 pb-1">
-            <Instagram size={15} style={{ color: "#C7A15B" }} />
-            <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>@matwalji.sarees</span>
-          </div>
+          {section.handle && (
+            <div className="flex items-center gap-2 pb-1">
+              <Instagram size={15} style={{ color: "#C7A15B" }} />
+              <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{section.handle}</span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-2.5" style={{ gridAutoRows: "200px" }}>
-          {GALLERY_IMGS.map((img, i) => (
-            <div key={i} className={`group relative overflow-hidden bg-[#e0d5cc] ${img.span} cursor-pointer`}>
-              <img src={img.src} alt={`Gallery ${i + 1}`}
+          {section.images.map((img, i) => (
+            <div key={i} className={`group relative overflow-hidden bg-[#e0d5cc] ${i % 3 === 0 ? "row-span-2" : ""} cursor-pointer`}>
+              <img src={img.src} alt={img.alt || `Gallery ${i + 1}`}
                 className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-400 flex items-center justify-center"
                 style={{ background: "rgba(42,7,16,0.45)" }}>
@@ -862,13 +904,14 @@ function ProcessStrip() {
 // ─── HomePage (assembled) ───────────────────────────────────────────────────────
 interface HomePageProps {
   products: Product[];
+  homeSections: Record<HomeSectionId, HomeSection>;
   setPage: (p: Page) => void;
   wishlist: Product[];
   onWishlist: (p: Product) => void;
   onViewProduct: (p: Product) => void;
 }
 
-export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct, products = [] }: HomePageProps) {
+export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct, products = [], homeSections }: HomePageProps) {
   return (
     <div className="pt-[70px]">
       <Hero />
@@ -876,12 +919,12 @@ export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct,
       <ShopByCategory setPage={setPage} />
       <StatsBar />
       <CraftsmanshipStory setPage={setPage} />
-      <FeaturedProducts wishlist={wishlist} onWishlist={onWishlist} onViewProduct={onViewProduct} products={products} />
-      <NewArrivals wishlist={wishlist} onWishlist={onWishlist} onViewProduct={onViewProduct} products={products} />
+      <FeaturedProducts section={homeSections.featured} wishlist={wishlist} onWishlist={onWishlist} onViewProduct={onViewProduct} products={products} />
+      <NewArrivals section={homeSections["new-arrivals"]} wishlist={wishlist} onWishlist={onWishlist} onViewProduct={onViewProduct} products={products} />
       <Bestsellers wishlist={wishlist} onWishlist={onWishlist} onViewProduct={onViewProduct} products={products} />
       <WhySection />
       <BridalBanner setPage={setPage} />
-      <LookbookGallery />
+      <LookbookGallery section={homeSections["capture-moments"]} />
       <TestimonialsSection />
       <ProcessStrip />
       <Newsletter />

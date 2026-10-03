@@ -21,6 +21,8 @@ const ROUTES: ApiRoute[] = [
   { pattern: /^\/api\/products\/([^/]+)\/?$/, module: "/api/products/[id].ts", paramName: "id" },
   { pattern: /^\/api\/filters\/?$/, module: "/api/filters/index.ts" },
   { pattern: /^\/api\/filters\/([^/]+)\/?$/, module: "/api/filters/[id].ts", paramName: "id" },
+  { pattern: /^\/api\/home-sections\/?$/, module: "/api/home-sections/index.ts" },
+  { pattern: /^\/api\/home-sections\/([^/]+)\/?$/, module: "/api/home-sections/[id].ts", paramName: "id" },
 ];
 
 async function readJsonBody(req: IncomingMessage): Promise<unknown> {

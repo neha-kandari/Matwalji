@@ -1,14 +1,16 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, Fragment } from "react";
 import {
   LayoutDashboard, Package, PlusCircle, LogOut, Search, Menu,
   Pencil, Trash2, X, Check, ChevronDown, AlertTriangle,
   TrendingUp, Tag, ShoppingBag, Layers, Eye, EyeOff, ArrowUpRight,
   Upload, CheckCircle2, XCircle, Loader2, Shirt, Scroll,
-  LayoutGrid, List, SlidersHorizontal, Plus,
+  LayoutGrid, List, SlidersHorizontal, Plus, Star, Sparkles, Instagram,
+  Minus, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, RotateCcw,
 } from "lucide-react";
 import { CATEGORY_SLUGS, CATEGORY_META } from "../data/categories";
 import MatwaljiLogo from "../components/MatwaljiLogo";
-import type { CategorySlug, Product, FilterOption, FilterType, SaveResult } from "../types";
+import type { CategorySlug, Product, FilterOption, FilterType, HomeSection, HomeSectionId, SaveResult } from "../types";
+import { DEFAULT_HOME_SECTIONS } from "../data/homeSections";
 
 const ADMIN_PASSWORD = "matwalji@admin";
 
@@ -51,6 +53,42 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const inputCls = "w-full px-3.5 py-2.5 border outline-none text-sm transition-colors focus:border-[#C7A15B]";
 const inputStyle = { borderColor: "rgba(199,161,91,0.3)", background: "#fdfaf7", fontFamily: "var(--font-body)", color: "#252525" };
+
+// Downscales + re-encodes a photo before it's embedded as base64. A raw
+// phone/camera photo can be several MB — well past what fits in a request
+// body once base64-inflated — so this keeps uploads working without the
+// admin ever having to think about file size.
+function compressImageFile(file: File, maxDimension = 1600, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read file"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Could not decode image"));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDimension || height > maxDimension) {
+          if (width >= height) {
+            height = Math.round((height / width) * maxDimension);
+            width = maxDimension;
+          } else {
+            width = Math.round((width / height) * maxDimension);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(reader.result as string); return; }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 // ─── Removable selection chip ───────────────────────────────────────────────────
 function SelectionChip({ label, swatch, onRemove }: { label: string; swatch?: string; onRemove: () => void }) {
@@ -275,42 +313,6 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
   const [uploading, setUploading]   = useState(false);
   const [saving, setSaving]         = useState(false);
   const fileInputRef                = useRef<HTMLInputElement>(null);
-
-  // Downscales + re-encodes a photo before it's embedded as base64. A raw
-  // phone/camera photo can be several MB — well past what fits in a request
-  // body once base64-inflated — so this keeps uploads working without the
-  // admin ever having to think about file size.
-  function compressImageFile(file: File, maxDimension = 1600, quality = 0.82): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(reader.error ?? new Error("Could not read file"));
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = () => reject(new Error("Could not decode image"));
-        img.onload = () => {
-          let { width, height } = img;
-          if (width > maxDimension || height > maxDimension) {
-            if (width >= height) {
-              height = Math.round((height / width) * maxDimension);
-              width = maxDimension;
-            } else {
-              width = Math.round((width / height) * maxDimension);
-              height = maxDimension;
-            }
-          }
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) { resolve(reader.result as string); return; }
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", quality));
-        };
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -1179,6 +1181,554 @@ function FiltersSection({ filterOptions, onAdd, onUpdate, onDelete }: FiltersSec
   );
 }
 
+// ─── Home page section editors ─────────────────────────────────────────────────
+const MAX_GALLERY_TILES = 12;
+const MAX_SHOWN_PIECES = 24;
+const CATEGORY_GROUPS: { label: string; slugs: CategorySlug[] }[] = [
+  { label: "Lehengas", slugs: LEHENGA_CATEGORIES },
+  { label: "Sarees", slugs: SAREE_CATEGORIES },
+];
+
+// Field-ordered key so "has anything changed?" never depends on object key order.
+function sectionSnapshot(s: HomeSection): string {
+  return JSON.stringify([s.visible, s.eyebrow, s.title, s.subtitle, s.mode, s.maxItems, s.categories, s.productIds, s.images, s.handle]);
+}
+
+function SectionEditorIntro({ title, description, visible, onVisibleChange }: {
+  title: string; description: string; visible: boolean; onVisibleChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-6 flex-wrap mb-8">
+      <div>
+        <p className="text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Home Page</p>
+        <h2 style={{ fontFamily: "var(--font-display)", color: "#2A0710", fontSize: "1.8rem", fontWeight: 300 }}>{title}</h2>
+        <p className="text-xs mt-1 max-w-xl" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{description}</p>
+      </div>
+      <button
+        onClick={() => onVisibleChange(!visible)}
+        className="flex items-center gap-3 px-4 py-2.5 border transition-colors flex-shrink-0"
+        style={{ borderColor: visible ? "#C7A15B" : "rgba(199,161,91,0.3)", background: visible ? "rgba(199,161,91,0.08)" : "white" }}
+      >
+        <span className="relative inline-block w-9 h-5 rounded-full transition-colors" style={{ background: visible ? "#2A0710" : "#d6cfc6" }}>
+          <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all" style={{ left: visible ? 18 : 2 }} />
+        </span>
+        <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#2A0710", fontFamily: "var(--font-body)" }}>
+          {visible ? "Shown on site" : "Hidden from site"}
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function Panel({ step, title, children }: { step: string; title: string; children: React.ReactNode }) {
+  return (
+    <section className="bg-white border p-6" style={{ borderColor: "rgba(199,161,91,0.2)" }}>
+      <div className="flex items-center gap-3 mb-5">
+        <span className="w-6 h-6 flex items-center justify-center text-[10px] flex-shrink-0" style={{ background: "#2A0710", color: "#C7A15B" }}>{step}</span>
+        <h3 className="text-[10px] tracking-[0.22em] uppercase" style={{ color: "#2A0710", fontFamily: "var(--font-body)" }}>{title}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function FilterPill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className="px-3 py-2 text-[10px] tracking-[0.12em] uppercase border transition-all"
+      style={{
+        fontFamily: "var(--font-body)",
+        background: active ? "#2A0710" : "white",
+        color: active ? "#C7A15B" : "#3a2a1a",
+        borderColor: active ? "#2A0710" : "rgba(199,161,91,0.3)",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function CountStepper({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const clamp = (n: number) => Math.min(MAX_SHOWN_PIECES, Math.max(1, n));
+  return (
+    <div className="inline-flex items-stretch border" style={{ borderColor: "rgba(199,161,91,0.3)" }}>
+      <button onClick={() => onChange(clamp(value - 1))} className="w-10 flex items-center justify-center transition-colors hover:bg-[rgba(199,161,91,0.1)]" aria-label="Show fewer">
+        <Minus size={14} style={{ color: "#2A0710" }} />
+      </button>
+      <span className="w-14 flex items-center justify-center text-lg" style={{ fontFamily: "var(--font-display)", color: "#2A0710", borderLeft: "1px solid rgba(199,161,91,0.3)", borderRight: "1px solid rgba(199,161,91,0.3)" }}>
+        {value}
+      </span>
+      <button onClick={() => onChange(clamp(value + 1))} className="w-10 flex items-center justify-center transition-colors hover:bg-[rgba(199,161,91,0.1)]" aria-label="Show more">
+        <Plus size={14} style={{ color: "#2A0710" }} />
+      </button>
+    </div>
+  );
+}
+
+function SectionSaveBar({ dirty, saving, onSave, onDiscard }: {
+  dirty: boolean; saving: boolean; onSave: () => void; onDiscard: () => void;
+}) {
+  return (
+    <div className="sticky bottom-0 mt-8 py-4 flex items-center justify-between gap-4 border-t" style={{ background: "#F8F4EF", borderColor: "rgba(199,161,91,0.2)" }}>
+      <p className="text-xs" style={{ color: dirty ? "#a0522d" : "#7a6a5a", fontFamily: "var(--font-body)" }}>
+        {dirty ? "You have unsaved changes." : "All changes are saved."}
+      </p>
+      <div className="flex gap-2">
+        <button
+          onClick={onDiscard}
+          disabled={!dirty || saving}
+          className="px-4 py-2.5 text-[10px] tracking-[0.2em] uppercase border transition-all disabled:opacity-40"
+          style={{ borderColor: "rgba(199,161,91,0.3)", color: "#3a2a1a", fontFamily: "var(--font-body)" }}
+        >
+          Discard
+        </button>
+        <button
+          onClick={onSave}
+          disabled={!dirty || saving}
+          className="flex items-center gap-2 px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase transition-all disabled:opacity-40"
+          style={{ background: "#2A0710", color: "#C7A15B", fontFamily: "var(--font-body)" }}
+        >
+          {saving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+          Save section
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface ProductSectionEditorProps {
+  section: HomeSection;
+  products: Product[];
+  autoRuleLabel: string;
+  isAuto: (p: Product) => boolean;
+  onSave: (s: HomeSection) => Promise<boolean>;
+}
+
+function ProductSectionEditor({ section, products, autoRuleLabel, isAuto, onSave }: ProductSectionEditorProps) {
+  const [draft, setDraft]   = useState<HomeSection>(section);
+  const [saving, setSaving] = useState(false);
+  const [tab, setTab]       = useState<CategorySlug | "all">("all");
+  const [search, setSearch] = useState("");
+  const dirty = sectionSnapshot(draft) !== sectionSnapshot(section);
+
+  function set<K extends keyof HomeSection>(key: K, value: HomeSection[K]) {
+    setDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  const picked = draft.productIds.flatMap((id) => {
+    const product = products.find((p) => p.id === id);
+    return product ? [product] : [];
+  });
+  const autoMatches = products.filter(
+    (p) => isAuto(p) && (draft.categories.length === 0 || draft.categories.includes(p.category))
+  );
+  const shownCount = Math.min(draft.maxItems, draft.mode === "manual" ? picked.length : autoMatches.length);
+  const statusText = !draft.visible
+    ? "Hidden from the home page. Turn it back on with the switch above."
+    : shownCount === 0
+      ? "No pieces match yet, so the section will not appear on the site."
+      : `Showing ${shownCount} piece${shownCount === 1 ? "" : "s"} on the home page.`;
+
+  const query = search.trim().toLowerCase();
+  const tabProducts = products.filter((p) => tab === "all" || p.category === tab);
+  const visibleProducts = tabProducts.filter((p) => !query || p.name.toLowerCase().includes(query));
+
+  function countFor(slug: CategorySlug) {
+    return products.filter((p) => p.category === slug).length;
+  }
+
+  function togglePick(id: number) {
+    set("productIds", draft.productIds.includes(id)
+      ? draft.productIds.filter((x) => x !== id)
+      : [...draft.productIds, id]);
+  }
+
+  function addAllInTab() {
+    const ids = tabProducts.map((p) => p.id).filter((id) => !draft.productIds.includes(id));
+    set("productIds", [...draft.productIds, ...ids]);
+  }
+
+  function movePick(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= draft.productIds.length) return;
+    const ids = [...draft.productIds];
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    set("productIds", ids);
+  }
+
+  function toggleCategory(slug: CategorySlug) {
+    set("categories", draft.categories.includes(slug)
+      ? draft.categories.filter((c) => c !== slug)
+      : [...draft.categories, slug]);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    await onSave(draft);
+    setSaving(false);
+  }
+
+  return (
+    <div className="p-8 max-w-5xl">
+      <SectionEditorIntro
+        title={section.title}
+        description={statusText}
+        visible={draft.visible}
+        onVisibleChange={(v) => set("visible", v)}
+      />
+
+      <div className="space-y-5">
+        <Panel step="1" title="Wording">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Field label="Small label">
+              <input className={inputCls} style={inputStyle} value={draft.eyebrow} onChange={(e) => set("eyebrow", e.target.value)} />
+            </Field>
+            <Field label="Heading">
+              <input className={inputCls} style={inputStyle} value={draft.title} onChange={(e) => set("title", e.target.value)} />
+            </Field>
+          </div>
+          <div className="mt-5">
+            <Field label="Description">
+              <textarea rows={2} className={inputCls + " resize-none"} style={inputStyle} value={draft.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
+            </Field>
+          </div>
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={() => setDraft((d) => ({ ...d, eyebrow: DEFAULT_HOME_SECTIONS[section.id].eyebrow, title: DEFAULT_HOME_SECTIONS[section.id].title, subtitle: DEFAULT_HOME_SECTIONS[section.id].subtitle }))}
+              className="flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase"
+              style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}
+            >
+              <RotateCcw size={11} /> Restore original wording
+            </button>
+          </div>
+        </Panel>
+
+        <Panel step="2" title="Which pieces show">
+          <div className="inline-flex border" style={{ borderColor: "rgba(199,161,91,0.3)" }}>
+            {([
+              { value: "auto", label: "Automatic" },
+              { value: "manual", label: "Hand-picked" },
+            ] as const).map((option) => {
+              const active = draft.mode === option.value;
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => set("mode", option.value)}
+                  className="px-5 py-2.5 text-[10px] tracking-[0.18em] uppercase transition-all"
+                  style={{ background: active ? "#2A0710" : "white", color: active ? "#C7A15B" : "#3a2a1a", fontFamily: "var(--font-body)" }}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {draft.mode === "auto" ? (
+            <div className="mt-5">
+              <p className="text-xs mb-3" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+                Automatically shows {autoRuleLabel}. Choose categories to narrow it down; with none selected, every category is included.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_SLUGS.map((slug) => (
+                  <FilterPill key={slug} active={draft.categories.includes(slug)} onClick={() => toggleCategory(slug)}>
+                    {CATEGORY_META[slug].label}
+                  </FilterPill>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-xs" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+              Only the pieces you pick below appear, in the order you arrange them.
+            </p>
+          )}
+        </Panel>
+
+        <Panel step="3" title="How many show">
+          <div className="flex items-center gap-5 flex-wrap">
+            <CountStepper value={draft.maxItems} onChange={(n) => set("maxItems", n)} />
+            <p className="text-xs" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+              pieces at most. {draft.mode === "manual" && picked.length > draft.maxItems
+                ? `You have picked ${picked.length}, so the last ${picked.length - draft.maxItems} are kept but hidden.`
+                : "Extra pieces are not shown on the site."}
+            </p>
+          </div>
+        </Panel>
+
+        {draft.mode === "manual" && (
+          <>
+            <Panel step="4" title="Choose pieces by category">
+              <div className="flex flex-wrap items-center gap-2">
+                <FilterPill active={tab === "all"} onClick={() => setTab("all")}>All ({products.length})</FilterPill>
+                {CATEGORY_GROUPS.map((group) => (
+                  <div key={group.label} className="flex flex-wrap items-center gap-2 ml-2">
+                    <span className="text-[9px] tracking-[0.2em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>{group.label}</span>
+                    {group.slugs.map((slug) => (
+                      <FilterPill key={slug} active={tab === slug} onClick={() => setTab(slug)}>
+                        {CATEGORY_META[slug].label} ({countFor(slug)})
+                      </FilterPill>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <input
+                  className={inputCls + " flex-1 min-w-[200px]"}
+                  style={{ ...inputStyle, background: "white" }}
+                  placeholder="Search by name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                  onClick={addAllInTab}
+                  disabled={tabProducts.length === 0}
+                  className="px-4 py-2.5 text-[10px] tracking-[0.15em] uppercase border transition-all disabled:opacity-40"
+                  style={{ borderColor: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)" }}
+                >
+                  Add all {tab === "all" ? "products" : CATEGORY_META[tab].label}
+                </button>
+                <button
+                  onClick={() => set("productIds", [])}
+                  disabled={draft.productIds.length === 0}
+                  className="px-4 py-2.5 text-[10px] tracking-[0.15em] uppercase border transition-all disabled:opacity-40"
+                  style={{ borderColor: "rgba(199,161,91,0.3)", color: "#7a6a5a", fontFamily: "var(--font-body)" }}
+                >
+                  Clear picks
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 max-h-[520px] overflow-y-auto pr-1">
+                {visibleProducts.map((p) => {
+                  const position = draft.productIds.indexOf(p.id);
+                  const on = position !== -1;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => togglePick(p.id)}
+                      className="text-left border transition-colors"
+                      style={{ borderColor: on ? "#C7A15B" : "rgba(199,161,91,0.2)", background: on ? "rgba(199,161,91,0.08)" : "white" }}
+                    >
+                      <div className="aspect-[4/5] relative overflow-hidden bg-[#e0d5cc]">
+                        {p.image && <img src={p.image} alt="" className="w-full h-full object-cover" />}
+                        {on && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-semibold" style={{ background: "#2A0710", color: "#C7A15B" }}>
+                            #{position + 1}
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-2.5">
+                        <p className="text-xs truncate" style={{ color: "#2A0710", fontFamily: "var(--font-body)" }}>{p.name || "Untitled"}</p>
+                        <div className="flex items-center justify-between gap-2 mt-1">
+                          <span className="text-[10px] truncate" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+                            {CATEGORY_META[p.category]?.label}
+                          </span>
+                          <span className="text-[9.5px] tracking-[0.12em] uppercase flex-shrink-0" style={{ color: on ? "#a0522d" : "#C7A15B", fontFamily: "var(--font-body)" }}>
+                            {on ? "Remove" : "Add"}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+                {visibleProducts.length === 0 && (
+                  <p className="col-span-full py-10 text-center text-xs" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>No products match.</p>
+                )}
+              </div>
+            </Panel>
+
+            <Panel step="5" title={`Display order (${picked.length} picked)`}>
+              {picked.length === 0 ? (
+                <p className="text-xs" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>Nothing picked yet. Choose pieces above.</p>
+              ) : (
+                <div className="space-y-2">
+                  {picked.map((p, i) => (
+                    <div key={p.id} className="flex items-center gap-3 p-2 border bg-[#fdfaf7]" style={{ borderColor: "rgba(199,161,91,0.2)", opacity: i < draft.maxItems ? 1 : 0.5 }}>
+                      <span className="w-6 text-center text-sm flex-shrink-0" style={{ fontFamily: "var(--font-display)", color: "#C7A15B" }}>{i + 1}</span>
+                      <div className="w-9 h-11 flex-shrink-0 overflow-hidden bg-[#e0d5cc]">
+                        {p.image && <img src={p.image} alt="" className="w-full h-full object-cover" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs truncate" style={{ color: "#2A0710", fontFamily: "var(--font-body)" }}>{p.name || "Untitled"}</p>
+                        <p className="text-[10px] truncate" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+                          {CATEGORY_META[p.category]?.label}{i >= draft.maxItems ? " · hidden on site (over the limit)" : ""}
+                        </p>
+                      </div>
+                      <button onClick={() => movePick(i, -1)} disabled={i === 0} className="p-2 transition-colors hover:bg-[rgba(199,161,91,0.12)] disabled:opacity-30" aria-label="Move up">
+                        <ArrowUp size={14} style={{ color: "#2A0710" }} />
+                      </button>
+                      <button onClick={() => movePick(i, 1)} disabled={i === picked.length - 1} className="p-2 transition-colors hover:bg-[rgba(199,161,91,0.12)] disabled:opacity-30" aria-label="Move down">
+                        <ArrowDown size={14} style={{ color: "#2A0710" }} />
+                      </button>
+                      <button onClick={() => togglePick(p.id)} className="p-2 transition-colors hover:bg-red-50" aria-label="Remove">
+                        <X size={14} style={{ color: "#a33" }} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Panel>
+          </>
+        )}
+      </div>
+
+      <SectionSaveBar
+        dirty={dirty}
+        saving={saving}
+        onSave={handleSave}
+        onDiscard={() => setDraft(section)}
+      />
+    </div>
+  );
+}
+
+interface GalleryEditorProps {
+  section: HomeSection;
+  onSave: (s: HomeSection) => Promise<boolean>;
+}
+
+function GalleryEditor({ section, onSave }: GalleryEditorProps) {
+  const [draft, setDraft]   = useState<HomeSection>(section);
+  const [saving, setSaving] = useState(false);
+  const [busy, setBusy]     = useState(false);
+  const [error, setError]   = useState<string | null>(null);
+  const fileInputRef        = useRef<HTMLInputElement>(null);
+  const replaceAtRef        = useRef<number | null>(null);
+  const dirty = sectionSnapshot(draft) !== sectionSnapshot(section);
+
+  function set<K extends keyof HomeSection>(key: K, value: HomeSection[K]) {
+    setDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  function openPicker(replaceAt: number | null) {
+    replaceAtRef.current = replaceAt;
+    fileInputRef.current?.click();
+  }
+
+  async function handlePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith("image/"));
+    e.target.value = "";
+    const replaceAt = replaceAtRef.current;
+    replaceAtRef.current = null;
+    if (files.length === 0) return;
+
+    setBusy(true);
+    setError(null);
+    try {
+      const srcs = await Promise.all(files.map((f) => compressImageFile(f)));
+      setDraft((d) => {
+        if (replaceAt !== null) {
+          return { ...d, images: d.images.map((img, i) => (i === replaceAt ? { ...img, src: srcs[0] } : img)) };
+        }
+        const room = MAX_GALLERY_TILES - d.images.length;
+        return { ...d, images: [...d.images, ...srcs.slice(0, room).map((src) => ({ src, alt: "" }))] };
+      });
+    } catch {
+      setError("One of those photos could not be read. Try a different file.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function moveTile(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= draft.images.length) return;
+    const images = [...draft.images];
+    [images[index], images[target]] = [images[target], images[index]];
+    set("images", images);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    await onSave(draft);
+    setSaving(false);
+  }
+
+  return (
+    <div className="p-8 max-w-5xl">
+      <SectionEditorIntro
+        title={section.title}
+        description="The Instagram-style photo grid near the bottom of the home page. Upload, replace, reorder or remove tiles."
+        visible={draft.visible}
+        onVisibleChange={(v) => set("visible", v)}
+      />
+
+      <div className="space-y-5">
+        <Panel step="1" title="Wording">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <Field label="Small label">
+              <input className={inputCls} style={inputStyle} value={draft.eyebrow} onChange={(e) => set("eyebrow", e.target.value)} />
+            </Field>
+            <Field label="Heading">
+              <input className={inputCls} style={inputStyle} value={draft.title} onChange={(e) => set("title", e.target.value)} />
+            </Field>
+            <Field label="Instagram handle">
+              <input className={inputCls} style={inputStyle} value={draft.handle} onChange={(e) => set("handle", e.target.value)} placeholder="@yourhandle" />
+            </Field>
+          </div>
+        </Panel>
+
+        <Panel step="2" title={`Photos (${draft.images.length} of ${MAX_GALLERY_TILES})`}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {draft.images.map((img, i) => (
+              <div key={i} className="border bg-[#fdfaf7]" style={{ borderColor: "rgba(199,161,91,0.2)" }}>
+                <div className="aspect-[4/3] overflow-hidden bg-[#e0d5cc] relative">
+                  <img src={img.src} alt="" className="w-full h-full object-cover" />
+                  <span className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-semibold" style={{ background: "#2A0710", color: "#C7A15B" }}>{i + 1}</span>
+                </div>
+                <div className="flex items-center justify-between px-1.5 py-1">
+                  <div className="flex">
+                    <button onClick={() => moveTile(i, -1)} disabled={busy || i === 0} title="Move left" className="p-1.5 transition-colors hover:bg-[rgba(199,161,91,0.12)] disabled:opacity-30">
+                      <ChevronLeft size={14} style={{ color: "#2A0710" }} />
+                    </button>
+                    <button onClick={() => moveTile(i, 1)} disabled={busy || i === draft.images.length - 1} title="Move right" className="p-1.5 transition-colors hover:bg-[rgba(199,161,91,0.12)] disabled:opacity-30">
+                      <ChevronRight size={14} style={{ color: "#2A0710" }} />
+                    </button>
+                  </div>
+                  <div className="flex">
+                    <button onClick={() => openPicker(i)} disabled={busy} title="Replace photo" className="p-1.5 transition-colors hover:bg-[rgba(199,161,91,0.12)] disabled:opacity-40">
+                      <Upload size={13} style={{ color: "#2A0710" }} />
+                    </button>
+                    <button onClick={() => set("images", draft.images.filter((_, j) => j !== i))} disabled={busy} title="Remove tile" className="p-1.5 transition-colors hover:bg-red-50 disabled:opacity-40">
+                      <Trash2 size={13} style={{ color: "#a33" }} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {draft.images.length < MAX_GALLERY_TILES && (
+              <button
+                onClick={() => openPicker(null)}
+                disabled={busy}
+                className="aspect-[4/3] border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-colors hover:bg-white disabled:opacity-60"
+                style={{ borderColor: "rgba(199,161,91,0.4)", color: "#7a6a5a" }}
+              >
+                {busy ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
+                <span className="text-[10px] tracking-[0.2em] uppercase" style={{ fontFamily: "var(--font-body)" }}>Add photos</span>
+              </button>
+            )}
+          </div>
+
+          {error && <p className="mt-4 text-xs" style={{ color: "#a33", fontFamily: "var(--font-body)" }}>{error}</p>}
+          <p className="mt-4 text-[11px]" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+            Tiles show left to right in this order. Every third tile is taller on desktop.
+          </p>
+        </Panel>
+      </div>
+
+      <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePick} />
+
+      <SectionSaveBar
+        dirty={dirty && !busy}
+        saving={saving || busy}
+        onSave={handleSave}
+        onDiscard={() => setDraft(section)}
+      />
+    </div>
+  );
+}
+
 // ─── Login gate ────────────────────────────────────────────────────────────────
 function LoginGate({ onSuccess }: { onSuccess: () => void }) {
   const [pw, setPw]         = useState("");
@@ -1251,7 +1801,7 @@ function LoginGate({ onSuccess }: { onSuccess: () => void }) {
 }
 
 // ─── Admin Page ────────────────────────────────────────────────────────────────
-type AdminTab = "overview" | "lehengas" | "sarees" | "filters" | "add";
+type AdminTab = "overview" | "lehengas" | "sarees" | "filters" | "home-featured" | "home-new-arrivals" | "home-capture-moments" | "add";
 
 interface AdminPageProps {
   products: Product[];
@@ -1262,12 +1812,15 @@ interface AdminPageProps {
   onAddFilter: (opt: Omit<FilterOption, "id">) => Promise<boolean>;
   onUpdateFilter: (opt: FilterOption) => Promise<boolean>;
   onDeleteFilter: (id: string) => Promise<boolean>;
+  homeSections: Record<HomeSectionId, HomeSection>;
+  onUpdateHomeSection: (s: HomeSection) => Promise<SaveResult>;
   onExit: () => void;
 }
 
 export default function AdminPage({
   products, onAdd, onUpdate, onDelete,
   filterOptions, onAddFilter, onUpdateFilter, onDeleteFilter,
+  homeSections, onUpdateHomeSection,
   onExit,
 }: AdminPageProps) {
   const [authed, setAuthed]         = useState(false);
@@ -1343,6 +1896,16 @@ export default function AdminPage({
     return ok;
   }
 
+  async function handleSaveHomeSection(section: HomeSection): Promise<boolean> {
+    const result = await onUpdateHomeSection(section);
+    setToast(
+      result.ok
+        ? { type: "success", message: `"${section.title}" section was saved.` }
+        : { type: "error", message: result.error ?? "Could not save this section. Please try again." }
+    );
+    return result.ok;
+  }
+
   async function handleDeleteFilter(opt: FilterOption): Promise<boolean> {
     const ok = await onDeleteFilter(opt.id);
     setToast(
@@ -1361,6 +1924,9 @@ export default function AdminPage({
     { id: "lehengas"  as AdminTab, label: "Lehengas", icon: Shirt,  count: lehengaCount },
     { id: "sarees"    as AdminTab, label: "Sarees",   icon: Scroll, count: sareeCount },
     { id: "filters"   as AdminTab, label: "Filters",  icon: SlidersHorizontal, count: filterOptions.length },
+    { id: "home-featured" as AdminTab, label: "Featured Pieces", icon: Star, count: undefined as number | undefined },
+    { id: "home-new-arrivals" as AdminTab, label: "New Arrivals", icon: Sparkles, count: undefined as number | undefined },
+    { id: "home-capture-moments" as AdminTab, label: "Capture Moments", icon: Instagram, count: undefined as number | undefined },
     { id: "add"       as AdminTab, label: "Add Product", icon: PlusCircle, count: undefined as number | undefined },
   ];
 
@@ -1392,38 +1958,44 @@ export default function AdminPage({
           {NAV_ITEMS.map(({ id, label, icon: Icon, count }) => {
             const active = id === "add" ? tab === "add" && !editTarget : tab === id;
             return (
-              <button
-                key={id}
-                onClick={() => {
-                  setTab(id);
-                  if (id !== "add") setEditTarget(null);
-                  if (id === "add") { setNewCategoryHint(undefined); }
-                }}
-                className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left transition-all duration-150"
-                style={{
-                  background: active ? "rgba(199,161,91,0.12)" : "transparent",
-                  borderLeft: active ? "2px solid #C7A15B" : "2px solid transparent",
-                }}
-              >
-                <span className="flex items-center gap-3">
-                  <Icon size={15} style={{ color: active ? "#C7A15B" : "rgba(199,161,91,0.45)" }} />
-                  <span className="text-[10.5px] tracking-[0.12em] uppercase" style={{ color: active ? "#C7A15B" : "rgba(232,210,166,0.6)", fontFamily: "var(--font-body)" }}>
-                    {label}
-                  </span>
-                </span>
-                {count !== undefined && (
-                  <span
-                    className="text-[9px] px-1.5 py-0.5 rounded-full flex-shrink-0"
-                    style={{
-                      background: active ? "rgba(199,161,91,0.25)" : "rgba(232,210,166,0.1)",
-                      color: active ? "#C7A15B" : "rgba(232,210,166,0.5)",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    {count}
-                  </span>
+              <Fragment key={id}>
+                {id === "home-featured" && (
+                  <p className="px-3 pt-4 pb-1 text-[8.5px] tracking-[0.28em] uppercase" style={{ color: "rgba(199,161,91,0.45)", fontFamily: "var(--font-body)" }}>
+                    Home Page
+                  </p>
                 )}
-              </button>
+                <button
+                  onClick={() => {
+                    setTab(id);
+                    if (id !== "add") setEditTarget(null);
+                    if (id === "add") { setNewCategoryHint(undefined); }
+                  }}
+                  className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left transition-all duration-150"
+                  style={{
+                    background: active ? "rgba(199,161,91,0.12)" : "transparent",
+                    borderLeft: active ? "2px solid #C7A15B" : "2px solid transparent",
+                  }}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon size={15} style={{ color: active ? "#C7A15B" : "rgba(199,161,91,0.45)" }} />
+                    <span className="text-[10.5px] tracking-[0.12em] uppercase" style={{ color: active ? "#C7A15B" : "rgba(232,210,166,0.6)", fontFamily: "var(--font-body)" }}>
+                      {label}
+                    </span>
+                  </span>
+                  {count !== undefined && (
+                    <span
+                      className="text-[9px] px-1.5 py-0.5 rounded-full flex-shrink-0"
+                      style={{
+                        background: active ? "rgba(199,161,91,0.25)" : "rgba(232,210,166,0.1)",
+                        color: active ? "#C7A15B" : "rgba(232,210,166,0.5)",
+                        fontFamily: "var(--font-body)",
+                      }}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              </Fragment>
             );
           })}
         </nav>
@@ -1487,6 +2059,33 @@ export default function AdminPage({
             onAdd={handleAddFilter}
             onUpdate={handleUpdateFilter}
             onDelete={handleDeleteFilter}
+          />
+        )}
+        {tab === "home-featured" && (
+          <ProductSectionEditor
+            key="home-featured"
+            section={homeSections.featured}
+            products={products}
+            autoRuleLabel="every piece that carries a tag such as Bestseller or Heritage"
+            isAuto={(p) => !!p.tag}
+            onSave={handleSaveHomeSection}
+          />
+        )}
+        {tab === "home-new-arrivals" && (
+          <ProductSectionEditor
+            key="home-new-arrivals"
+            section={homeSections["new-arrivals"]}
+            products={products}
+            autoRuleLabel='every piece tagged "New Arrival"'
+            isAuto={(p) => p.tag === "New Arrival"}
+            onSave={handleSaveHomeSection}
+          />
+        )}
+        {tab === "home-capture-moments" && (
+          <GalleryEditor
+            key="home-capture-moments"
+            section={homeSections["capture-moments"]}
+            onSave={handleSaveHomeSection}
           />
         )}
         {(tab === "add" || editTarget) && (

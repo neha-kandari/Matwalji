@@ -14,10 +14,11 @@ import ContactPage from "../pages/ContactPage";
 import AdminPage from "../pages/AdminPage";
 
 // ── Types & constants ──────────────────────────────────────────────────────────
-import type { Page, Product, CategorySlug, FilterOption, SaveResult } from "../types";
+import type { Page, Product, CategorySlug, FilterOption, HomeSection, HomeSectionId, SaveResult } from "../types";
 import { CATEGORY_SLUGS } from "../data/categories";
 import { ALL_PRODUCTS } from "../data/products";
 import { DEFAULT_FILTER_OPTIONS } from "../data/filters";
+import { DEFAULT_HOME_SECTIONS, normalizeHomeSection, resolveHomeSections } from "../data/homeSections";
 
 function getInitialPage(): Page {
   return window.location.pathname === "/admin" ? "admin" : "home";
@@ -31,6 +32,25 @@ export default function App() {
   // list is fetched from MongoDB (via /api/products) right after.
   const [products, setProducts]             = useState<Product[]>(ALL_PRODUCTS);
   const [filterOptions, setFilterOptions]   = useState<FilterOption[]>(DEFAULT_FILTER_OPTIONS);
+  const [homeSections, setHomeSections]     = useState<Record<HomeSectionId, HomeSection>>(DEFAULT_HOME_SECTIONS);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/home-sections")
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to load home sections (${r.status})`);
+        return r.json() as Promise<HomeSection[]>;
+      })
+      .then((data) => {
+        if (!cancelled) setHomeSections(resolveHomeSections(data));
+      })
+      .catch((err) => {
+        console.warn("Could not load home page sections from the database, using defaults:", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Load products from the database on first mount.
   useEffect(() => {
@@ -216,6 +236,23 @@ export default function App() {
     }
   }
 
+  // ── Home page section content (persisted via /api/home-sections) ───────────
+  async function updateHomeSection(section: HomeSection): Promise<SaveResult> {
+    try {
+      const res = await fetch(`/api/home-sections/${section.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(section),
+      });
+      if (!res.ok) return { ok: false, error: await readErrorMessage(res) };
+      const saved = (await res.json()) as HomeSection;
+      setHomeSections((prev) => ({ ...prev, [saved.id]: normalizeHomeSection(saved.id, saved) }));
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+    }
+  }
+
   // Admin-managed color name → hex map, handed to the storefront pages so
   // swatches reflect colors added/edited in the admin panel.
   const colorMap = useMemo(() => {
@@ -241,6 +278,8 @@ export default function App() {
         onAddFilter={addFilterOption}
         onUpdateFilter={updateFilterOption}
         onDeleteFilter={deleteFilterOption}
+        homeSections={homeSections}
+        onUpdateHomeSection={updateHomeSection}
         onExit={() => navigateTo("home")}
       />
     );
@@ -263,6 +302,7 @@ export default function App() {
             onWishlist={toggleWishlist}
             onViewProduct={viewProduct}
             products={products}
+            homeSections={homeSections}
           />
           <Footer setPage={navigateTo} />
         </>

@@ -60,6 +60,36 @@ export interface FilterOption {
   hex?: string; // only meaningful for type "color"
 }
 
+// ── Admin-managed home page sections ───────────────────────────────────────────
+export type HomeSectionId = "featured" | "new-arrivals" | "capture-moments";
+
+export interface HomeSectionImage {
+  src: string;
+  alt: string;
+}
+
+export type HomeSectionMode = "auto" | "manual";
+
+export interface HomeSection {
+  id: HomeSectionId;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  // Hidden sections are removed from the home page entirely.
+  visible: boolean;
+  // "auto" picks products by tag, optionally limited to `categories`;
+  // "manual" shows exactly `productIds`, in that order.
+  mode: HomeSectionMode;
+  maxItems: number;
+  categories: CategorySlug[];
+  // Product sections: hand-picked products, in display order.
+  productIds: number[];
+  // Capture moments: the gallery tiles, in display order.
+  images: HomeSectionImage[];
+  // Capture moments: Instagram handle shown beside the heading.
+  handle: string;
+}
+
 // Result of an admin save/update — carries a human-readable reason on failure
 // (validation error, payload too large, etc.) instead of a bare boolean.
 export interface SaveResult {
