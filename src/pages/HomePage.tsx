@@ -47,11 +47,15 @@ function MarqueeTicker() {
 function Hero() {
   return (
     <section className="relative min-h-[480px] overflow-hidden" style={{ height: "80vh" }}>
-      <img
-        src="/hero.png"
-        alt="MATWALJI bridal lehengas"
-        className="absolute inset-0 w-full h-full object-cover object-top"
-      />
+      <picture>
+        {/* Portrait crop on small screens, wide crop from sm (640px) up */}
+        <source media="(max-width: 639px)" srcSet="/hero2.png" />
+        <img
+          src="/hero.png"
+          alt="MATWALJI bridal lehengas"
+          className="absolute inset-0 w-full h-full object-cover object-top"
+        />
+      </picture>
 
       {/* Subtle black overlay — keeps the centered text legible without hiding the image */}
       <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.32)" }} />
