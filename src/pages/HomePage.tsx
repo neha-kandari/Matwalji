@@ -214,7 +214,7 @@ const CATEGORY_CONFIG = [
     label: "Net Sarees",
     from: "From ₹9,000",
     count: "5 pieces",
-    img: "/sarees/net saree.png",
+    img: "/sarees/net.png",
   },
 ];
 
