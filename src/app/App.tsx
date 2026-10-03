@@ -27,7 +27,6 @@ export default function App() {
   const [page, setPage]                     = useState<Page>(getInitialPage);
   const [wishlist, setWishlist]             = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [scrolled, setScrolled]             = useState(false);
   // Seed with the static fallback so the site renders instantly; the real
   // list is fetched from MongoDB (via /api/products) right after.
   const [products, setProducts]             = useState<Product[]>(ALL_PRODUCTS);
@@ -72,13 +71,6 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  // Sticky navbar scroll detection
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 55);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // Keep the URL in sync with the admin panel only — every other page in
@@ -261,7 +253,6 @@ export default function App() {
         setPage={navigateTo}
         setSelectedProduct={setSelectedProduct}
         wishlistCount={wishlist.length}
-        scrolled={scrolled}
       />
 
       {page === "home" && (

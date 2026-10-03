@@ -9,20 +9,14 @@ interface Props {
   setPage: (p: Page) => void;
   setSelectedProduct: (p: Product | null) => void;
   wishlistCount: number;
-  scrolled: boolean;
 }
 
-export default function Navbar({ page, setPage, setSelectedProduct, wishlistCount, scrolled }: Props) {
+export default function Navbar({ page, setPage, setSelectedProduct, wishlistCount }: Props) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const isHome = page === "home";
-  const bg = !isHome || scrolled
-    ? "bg-[#2A0710] shadow-md shadow-black/20"
-    : "bg-transparent";
 
   function navTo(p: Page) {
     setPage(p);
@@ -42,7 +36,7 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${bg}`}>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#2A0710] shadow-md shadow-black/20">
         <div className="max-w-7xl mx-auto px-5 lg:px-10">
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
@@ -83,8 +77,8 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                     {openDropdown === item.label && (
                       <div
                         className="absolute top-full mt-3 min-w-[240px] border py-2"
-                        style={{ right: 0 }}
                         style={{
+                          right: 0,
                           background: "#1e0609",
                           borderColor: "rgba(199,161,91,0.25)",
                           boxShadow: "0 12px 40px rgba(0,0,0,0.4)",

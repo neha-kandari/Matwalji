@@ -56,9 +56,6 @@ function Hero() {
       {/* Light overlay — just enough to keep the text legible */}
       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(26,5,8,0.5) 0%, rgba(26,5,8,0.08) 45%, rgba(26,5,8,0.2) 100%)" }} />
 
-      {/* Extra fade at the very top so the navbar (transparent on this page) stays readable over the image */}
-      <div className="absolute inset-x-0 top-0 h-28 lg:h-36" style={{ background: "linear-gradient(to bottom, rgba(20,4,7,0.65) 0%, transparent 100%)" }} />
-
       {/* Gold left accent */}
       <div className="absolute left-0 top-0 bottom-0 z-20 w-[3px]" style={{ background: "linear-gradient(to bottom, transparent 10%, #C7A15B 50%, transparent 90%)" }} />
 
@@ -875,7 +872,7 @@ interface HomePageProps {
 
 export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct, products = [] }: HomePageProps) {
   return (
-    <>
+    <div className="pt-[70px]">
       <Hero />
       <MarqueeTicker />
       <ShopByCategory setPage={setPage} />
@@ -890,6 +887,6 @@ export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct,
       <TestimonialsSection />
       <ProcessStrip />
       <Newsletter />
-    </>
+    </div>
   );
 }
