@@ -126,17 +126,6 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                   </button>
                 )
               )}
-              <button
-                onClick={() => navTo("contact")}
-                className="flex items-center gap-1.5 px-4 py-2 text-[10.5px] tracking-[0.2em] uppercase border transition-all duration-200 hover:bg-[#C7A15B] hover:text-[#2A0710]"
-                style={{
-                  color: "#C7A15B",
-                  borderColor: "#C7A15B",
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                Contact Us
-              </button>
             </div>
 
             {/* Icon group */}
@@ -163,6 +152,19 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                     {wishlistCount}
                   </span>
                 )}
+              </button>
+
+              <button
+                onClick={() => navTo("contact")}
+                className="hidden lg:flex items-center gap-1.5 px-4 py-2 text-[10.5px] tracking-[0.2em] uppercase transition-all duration-200 hover:bg-[#E8D2A6]"
+                style={{
+                  background: "#C7A15B",
+                  color: "#2A0710",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 700,
+                }}
+              >
+                Contact Us
               </button>
 
               <button
