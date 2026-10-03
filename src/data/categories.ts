@@ -121,7 +121,7 @@ export const NAV_STRUCTURE: NavItem[] = [
     ],
   },
   {
-    label: "Designer Sarees",
+    label: "Sarees",
     page: null,
     dropdown: [
       { label: "Silk Sarees", page: "sarees-silk" as Page, sub: "Kanjivaram · Mysore · Tussar" },
