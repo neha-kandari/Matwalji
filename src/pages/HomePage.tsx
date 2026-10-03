@@ -200,7 +200,7 @@ const CATEGORY_CONFIG = [
     label: "Silk Sarees",
     from: "From ₹8,500",
     count: "5 pieces",
-    img: "https://images.unsplash.com/photo-1619516388835-2b60acc4049e?w=700&h=500&fit=crop&auto=format",
+    img: "/sarees/silk.webp",
   },
   {
     slug: "sarees-banarasi" as CategorySlug,
@@ -214,7 +214,7 @@ const CATEGORY_CONFIG = [
     label: "Net Sarees",
     from: "From ₹9,000",
     count: "5 pieces",
-    img: "https://images.unsplash.com/photo-1692850852630-495a2145c2a4?w=700&h=500&fit=crop&auto=format",
+    img: "/sarees/net.webp",
   },
 ];
 
