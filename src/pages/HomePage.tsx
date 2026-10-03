@@ -44,7 +44,7 @@ function MarqueeTicker() {
 }
 
 // ─── Hero ──────────────────────────────────────────────────────────────────────
-function Hero() {
+function Hero({ setPage }: { setPage: (p: Page) => void }) {
   return (
     <section className="relative min-h-[480px] overflow-hidden" style={{ height: "80vh" }}>
       <img
@@ -59,8 +59,8 @@ function Hero() {
       {/* Gold left accent */}
       <div className="absolute left-0 top-0 bottom-0 z-20 w-[3px]" style={{ background: "linear-gradient(to bottom, transparent 10%, #C7A15B 50%, transparent 90%)" }} />
 
-      {/* Minimal text */}
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-end text-center px-4 sm:px-8 pb-14 lg:pb-20">
+      {/* Minimal text — centered between the three women in the image */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 sm:px-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-px w-8" style={{ background: "#C7A15B" }} />
           <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>
@@ -80,6 +80,16 @@ function Hero() {
         >
           Elegance Woven Into Every Thread
         </h1>
+        <button
+          onClick={() => setPage("bridal-lehengas")}
+          className="group flex items-center gap-2.5 mt-8 px-7 py-3.5 text-[10.5px] tracking-[0.24em] uppercase transition-all duration-300"
+          style={{ background: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)", fontWeight: 700 }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#E8D2A6"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#C7A15B"; }}
+        >
+          Explore Products
+          <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+        </button>
       </div>
     </section>
   );
@@ -873,7 +883,7 @@ interface HomePageProps {
 export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct, products = [] }: HomePageProps) {
   return (
     <div className="pt-[70px]">
-      <Hero />
+      <Hero setPage={setPage} />
       <MarqueeTicker />
       <ShopByCategory setPage={setPage} />
       <StatsBar />
