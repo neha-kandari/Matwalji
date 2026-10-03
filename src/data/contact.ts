@@ -13,9 +13,5 @@ export const CONTACT_INFO = {
   ],
 };
 
-// Universal Google Maps search link (works on mobile — opens the Maps app —
-// and desktop, without needing an exact geocoded address/place ID).
-export const GOOGLE_MAPS_URL =
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    [...CONTACT_INFO.addressLines, CONTACT_INFO.landmark].join(", ")
-  )}`;
+// The exact pinned location on Google Maps, as shared from the Maps app.
+export const GOOGLE_MAPS_URL = "https://share.google/VFIpfBzQQwXwCmbgz";
