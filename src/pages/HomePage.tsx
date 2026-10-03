@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowRight, ArrowUpRight, Gem, Award, Sparkles, Shield, Star, Quote, Instagram } from "lucide-react";
 import SectionHeader from "../components/SectionHeader";
 import ProductCard from "../components/ProductCard";
@@ -43,206 +43,43 @@ function MarqueeTicker() {
   );
 }
 
-// ─── Hero Carousel ─────────────────────────────────────────────────────────────
-const SLIDES = [
-  {
-    img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=1800&h=1200&fit=crop&auto=format",
-    eyebrow: "Bridal Collection · 2025",
-    heading: ["Elegance", "Woven Into Every Thread"],
-    accentLine: 1,
-    sub: "Luxury bridal lehengas crafted by master artisans — each piece a living heirloom.",
-    cta: { label: "Explore Bridal", page: "bridal-lehengas" as Page },
-    ctaSecondary: { label: "View Lookbook", page: "about" as Page },
-  },
-  {
-    img: "https://images.unsplash.com/photo-1619516388835-2b60acc4049e?w=1800&h=1200&fit=crop&auto=format",
-    eyebrow: "Heritage Silks · Kanchipuram",
-    heading: ["Six Yards of", "Pure Heritage"],
-    accentLine: 1,
-    sub: "Sourced from the finest looms of Varanasi and Kanchipuram — silk that tells a story.",
-    cta: { label: "Shop Silk Sarees", page: "sarees-silk" as Page },
-    ctaSecondary: { label: "Banarasi Weaves", page: "sarees-banarasi" as Page },
-  },
-  {
-    img: "https://images.unsplash.com/photo-1692850852630-495a2145c2a4?w=1800&h=1200&fit=crop&auto=format",
-    eyebrow: "Designer Sarees · Net & Banarasi",
-    heading: ["The Art of", "The Drape"],
-    accentLine: 1,
-    sub: "Net and Banarasi sarees designed to move with you — light as air, rich as tradition.",
-    cta: { label: "Shop Net Sarees", page: "sarees-net" as Page },
-    ctaSecondary: { label: "Banarasi Collection", page: "sarees-banarasi" as Page },
-  },
-];
-
-const SLIDE_DURATION = 5500;
-
-function Hero({ setPage }: { setPage: (p: Page) => void }) {
-  const [current, setCurrent]     = useState(0);
-  const [prev, setPrev]           = useState<number | null>(null);
-  const [textVisible, setTextVisible] = useState(true);
-  const [progress, setProgress]   = useState(0);
-  const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const goTo = useCallback((idx: number) => {
-    setTextVisible(false);
-    setPrev(current);
-    setTimeout(() => {
-      setCurrent(idx);
-      setPrev(null);
-      setProgress(0);
-      setTimeout(() => setTextVisible(true), 60);
-    }, 700);
-  }, [current]);
-
-  const next = useCallback(() => goTo((current + 1) % SLIDES.length), [current, goTo]);
-
-  // Auto-advance
-  useEffect(() => {
-    timerRef.current = setInterval(next, SLIDE_DURATION);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [next]);
-
-  // Progress bar
-  useEffect(() => {
-    setProgress(0);
-    const start = Date.now();
-    progressRef.current = setInterval(() => {
-      const elapsed = Date.now() - start;
-      setProgress(Math.min((elapsed / SLIDE_DURATION) * 100, 100));
-    }, 30);
-    return () => { if (progressRef.current) clearInterval(progressRef.current); };
-  }, [current]);
-
-  const slide = SLIDES[current % SLIDES.length] ?? SLIDES[0];
-
+// ─── Hero ──────────────────────────────────────────────────────────────────────
+function Hero() {
   return (
     <section className="relative min-h-[480px] overflow-hidden" style={{ height: "70vh" }}>
-      {/* ── Slides (crossfade) ── */}
-      {SLIDES.map((s, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{ opacity: i === current ? 1 : 0, zIndex: i === current ? 1 : 0 }}
-        >
-          <img
-            src={s.img}
-            alt={s.heading.join(" ")}
-            className="w-full h-full object-cover object-top"
-            style={{
-              transform: i === current ? "scale(1.04)" : "scale(1)",
-              transition: "transform 7s ease-out",
-            }}
-          />
-        </div>
-      ))}
+      <img
+        src="/hero.png"
+        alt="MATWALJI bridal lehengas"
+        className="absolute inset-0 w-full h-full object-cover object-top"
+      />
 
-      {/* Overlays */}
-      <div className="absolute inset-0 z-10" style={{ background: "linear-gradient(105deg, rgba(42,7,16,0.92) 0%, rgba(42,7,16,0.55) 50%, rgba(42,7,16,0.2) 100%)" }} />
-      <div className="absolute inset-0 z-10" style={{ background: "linear-gradient(to top, rgba(42,7,16,0.8) 0%, transparent 55%)" }} />
+      {/* Light overlay — just enough to keep the text legible */}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(26,5,8,0.5) 0%, rgba(26,5,8,0.08) 45%, rgba(26,5,8,0.2) 100%)" }} />
 
       {/* Gold left accent */}
       <div className="absolute left-0 top-0 bottom-0 z-20 w-[3px]" style={{ background: "linear-gradient(to bottom, transparent 10%, #C7A15B 50%, transparent 90%)" }} />
 
-      {/* ── Slide content ── */}
-      <div className="absolute inset-0 z-20 flex flex-col justify-center items-center text-center px-4 sm:px-8 lg:px-20 overflow-hidden">
-        <div
-          className="flex flex-col items-center gap-0 w-full max-w-[min(672px,100%)]"
+      {/* Minimal text */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-end text-center px-4 sm:px-8 pb-14 lg:pb-20">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-px w-8" style={{ background: "#C7A15B" }} />
+          <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>
+            MATWALJI
+          </span>
+          <div className="h-px w-8" style={{ background: "#C7A15B" }} />
+        </div>
+        <h1
           style={{
-            opacity: textVisible ? 1 : 0,
-            transform: textVisible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.75s ease-out, transform 0.75s ease-out",
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(1.8rem, 5vw, 4rem)",
+            color: "#F8F4EF",
+            fontWeight: 300,
+            lineHeight: 1.1,
+            letterSpacing: "-0.01em",
           }}
         >
-          {/* Eyebrow */}
-
-          {/* Heading — per-word stagger */}
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.8rem, 5vw, 4.4rem)",
-              color: "#F8F4EF",
-              fontWeight: 300,
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-              width: "100%",
-            }}
-          >
-            {slide.heading.map((line, li) => (
-              <span
-                key={li}
-                className="block"
-                style={{
-                  color: li === slide.accentLine ? "#C7A15B" : "#F8F4EF",
-                  opacity: textVisible ? 1 : 0,
-                  transform: textVisible ? "translateY(0)" : "translateY(16px)",
-                  transition: `opacity 0.7s ease-out ${0.08 + li * 0.12}s, transform 0.7s ease-out ${0.08 + li * 0.12}s`,
-                  fontStyle: li === slide.accentLine ? "italic" : "normal",
-                  marginTop: li === 0 ? "3rem" : undefined,
-                }}
-              >
-                {line}
-              </span>
-            ))}
-          </h1>
-
-          {/* Sub */}
-          <p
-            className="mt-6 mb-9 leading-relaxed max-w-md"
-            style={{
-              color: "rgba(232,210,166,0.68)",
-              fontFamily: "var(--font-body)",
-              fontSize: "0.88rem",
-              opacity: textVisible ? 1 : 0,
-              transition: "opacity 0.7s ease-out 0.45s",
-            }}
-          >
-            {slide.sub}
-          </p>
-
-          {/* CTAs */}
-          <div
-            className="flex flex-wrap gap-3 justify-center"
-            style={{ opacity: textVisible ? 1 : 0, transition: "opacity 0.7s ease-out 0.55s" }}
-          >
-            <button
-              onClick={() => setPage(slide.cta.page)}
-              className="group flex items-center gap-2.5 px-7 py-3.5 text-[10.5px] tracking-[0.24em] uppercase transition-all duration-300"
-              style={{ background: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)", fontWeight: 700 }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#E8D2A6"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#C7A15B"; }}
-            >
-              {slide.cta.label}
-              <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
-            <button
-              onClick={() => setPage(slide.ctaSecondary.page)}
-              className="group flex items-center gap-2.5 px-7 py-3.5 text-[10.5px] tracking-[0.24em] uppercase border transition-all duration-300"
-              style={{ color: "#E8D2A6", borderColor: "rgba(232,210,166,0.28)", fontFamily: "var(--font-body)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(232,210,166,0.6)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(232,210,166,0.28)"; }}
-            >
-              {slide.ctaSecondary.label}
-              <ArrowRight size={12} className="opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Slide counter + progress (bottom left) ── */}
-      <div className="absolute bottom-10 left-8 lg:left-20 z-30 flex items-center gap-4">
-        <span style={{ fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "1.4rem", fontWeight: 300 }}>
-          {String(current + 1).padStart(2, "0")}
-        </span>
-        <div className="w-16 h-px relative overflow-hidden" style={{ background: "rgba(199,161,91,0.2)" }}>
-          <div
-            className="absolute left-0 top-0 bottom-0 transition-none"
-            style={{ width: `${progress}%`, background: "#C7A15B" }}
-          />
-        </div>
-        <span style={{ fontFamily: "var(--font-display)", color: "rgba(199,161,91,0.35)", fontSize: "1.4rem", fontWeight: 300 }}>
-          {String(SLIDES.length).padStart(2, "0")}
-        </span>
+          Elegance Woven Into Every Thread
+        </h1>
       </div>
     </section>
   );
@@ -1036,7 +873,7 @@ interface HomePageProps {
 export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct, products = [] }: HomePageProps) {
   return (
     <>
-      <Hero setPage={setPage} />
+      <Hero />
       <MarqueeTicker />
       <ShopByCategory setPage={setPage} />
       <StatsBar />
