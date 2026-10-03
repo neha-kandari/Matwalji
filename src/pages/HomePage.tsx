@@ -666,31 +666,26 @@ function WhySection() {
 // ─── Bridal Banner ──────────────────────────────────────────────────────────────
 function BridalBanner({ setPage }: { setPage: (p: Page) => void }) {
   return (
-    <section className="relative overflow-hidden" style={{ minHeight: 500 }}>
-      <img src="/exclusiveYours.png"
-        alt="Bridal collection" className="absolute inset-0 w-full h-full object-cover object-top" />
+    <section className="relative overflow-hidden sm:min-h-[500px]">
+      <picture>
+        <source media="(max-width: 639px)" srcSet="/exclusiveYoursMobile.png" />
+        <img src="/exclusiveYours.png"
+          alt="Bridal collection" className="block w-full h-auto sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-top" />
+      </picture>
       <div className="absolute inset-0" style={{ background: "rgba(42,7,16,0.6)" }} />
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-24 flex items-center justify-center text-center" style={{ minHeight: 500 }}>
+      <div className="absolute inset-0 z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 sm:py-24 flex items-center justify-center text-center">
         <div className="max-w-xl mx-auto flex flex-col items-center">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-px w-10" style={{ background: "#C7A15B" }} />
-            <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Exclusively Yours</span>
-            <div className="h-px w-10" style={{ background: "#C7A15B" }} />
-          </div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2.4rem, 5vw, 4.2rem)", color: "#F8F4EF", fontWeight: 300, lineHeight: 1.05 }}>
+          <h2 className="mb-6 sm:mb-10" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(1.7rem, 5vw, 4.2rem)", color: "#F8F4EF", fontWeight: 300, lineHeight: 1.05 }}>
             Begin Your<br /><em className="not-italic" style={{ color: "#C7A15B" }}>Bridal</em> Journey<br />With Us
           </h2>
-          <p className="mt-5 mb-10 text-sm leading-relaxed max-w-sm mx-auto" style={{ color: "rgba(232,210,166,0.68)", fontFamily: "var(--font-body)" }}>
-            From ₹10,000 onwards — discover bridal lehengas that honour your individuality and our shared heritage. Every piece tells your story.
-          </p>
-          <div className="flex gap-4 flex-wrap justify-center">
+          <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
             <button onClick={() => setPage("bridal-lehengas")}
-              className="group flex items-center gap-2.5 px-8 py-4 text-[11px] tracking-[0.25em] uppercase transition-all duration-300"
+              className="group flex items-center gap-2 sm:gap-2.5 px-5 sm:px-8 py-3 sm:py-4 text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase transition-all duration-300"
               style={{ background: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)", fontWeight: 600 }}>
               Explore Bridal <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
             </button>
             <button onClick={() => setPage("contact")}
-              className="px-8 py-4 text-[11px] tracking-[0.25em] uppercase border transition-all hover:bg-white/5"
+              className="px-5 sm:px-8 py-3 sm:py-4 text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase border transition-all hover:bg-white/5"
               style={{ color: "#E8D2A6", borderColor: "rgba(232,210,166,0.3)", fontFamily: "var(--font-body)" }}>
               Book Appointment
             </button>
