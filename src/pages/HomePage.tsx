@@ -46,7 +46,7 @@ function MarqueeTicker() {
 // ─── Hero ──────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="relative min-h-[480px] overflow-hidden" style={{ height: "70vh" }}>
+    <section className="relative w-full overflow-hidden" style={{ aspectRatio: "3 / 2", minHeight: 420 }}>
       <img
         src="/hero.png"
         alt="MATWALJI bridal lehengas"
