@@ -44,7 +44,7 @@ function MarqueeTicker() {
 }
 
 // ─── Hero ──────────────────────────────────────────────────────────────────────
-function Hero({ setPage }: { setPage: (p: Page) => void }) {
+function Hero() {
   return (
     <section className="relative min-h-[480px] overflow-hidden" style={{ height: "80vh" }}>
       <img
@@ -61,13 +61,6 @@ function Hero({ setPage }: { setPage: (p: Page) => void }) {
 
       {/* Minimal text — centered between the three women in the image */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 sm:px-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-px w-8" style={{ background: "#C7A15B" }} />
-          <span className="text-[10px] tracking-[0.32em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>
-            MATWALJI
-          </span>
-          <div className="h-px w-8" style={{ background: "#C7A15B" }} />
-        </div>
         <h1
           style={{
             fontFamily: "var(--font-display)",
@@ -81,16 +74,6 @@ function Hero({ setPage }: { setPage: (p: Page) => void }) {
           <span className="block">Draped In</span>
           <span className="block" style={{ color: "#E8D2A6", fontStyle: "italic" }}>Elegance</span>
         </h1>
-        <button
-          onClick={() => setPage("bridal-lehengas")}
-          className="group flex items-center gap-2.5 mt-8 px-7 py-3.5 text-[10.5px] tracking-[0.24em] uppercase transition-all duration-300"
-          style={{ background: "#2A0710", color: "#E8D2A6", fontFamily: "var(--font-body)", fontWeight: 700 }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A1022"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#2A0710"; }}
-        >
-          Explore Products
-          <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
-        </button>
       </div>
     </section>
   );
@@ -884,7 +867,7 @@ interface HomePageProps {
 export default function HomePage({ setPage, wishlist, onWishlist, onViewProduct, products = [] }: HomePageProps) {
   return (
     <div className="pt-[70px]">
-      <Hero setPage={setPage} />
+      <Hero />
       <MarqueeTicker />
       <ShopByCategory setPage={setPage} />
       <StatsBar />
