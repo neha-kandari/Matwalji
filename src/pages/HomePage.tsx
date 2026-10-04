@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type CSSProperties } from "react";
-import { ArrowRight, ArrowUpRight, Gem, Award, Sparkles, Shield, Star, Quote, Instagram } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Gem, Award, Sparkles, Shield, Quote, Instagram } from "lucide-react";
 import SectionHeader from "../components/SectionHeader";
 import ProductCard from "../components/ProductCard";
 import Newsletter from "../components/Newsletter";
@@ -741,32 +741,29 @@ function LookbookGallery({ section }: { section: HomeSection }) {
 // ─── Testimonials ───────────────────────────────────────────────────────────────
 const TESTIMONIALS = [
   {
-    name: "Priya Sharma",
-    city: "Mumbai",
-    rating: 5,
-    text: "My bridal lehenga from MATWALJI was beyond anything I had imagined. The craftsmanship, the fabric, the attention to detail — I felt like royalty on my wedding day.",
-    occasion: "Bridal Lehenga",
-    avatar: "https://images.unsplash.com/photo-1716504628084-97224213ca6d?w=80&h=80&fit=crop&auto=format",
+    name: "Kathrin Münzel",
+    text: "Had a great experience here. I just walked in and wanted to have a look around. The staff immediately helped me and let me try on some of their designs. They were very friendly. I cannot comment on quality or prices because I didn't buy anything, but it seemed fine to me.",
   },
   {
-    name: "Ananya Reddy",
-    city: "Hyderabad",
-    rating: 5,
-    text: "The Kanjivaram saree I ordered arrived like a work of art. MATWALJI is the only brand that truly understands luxury Indian fashion. I am a customer for life.",
-    occasion: "Silk Saree",
-    avatar: "https://images.unsplash.com/photo-1716504628204-47f2df8d2634?w=80&h=80&fit=crop&auto=format",
+    name: "Siddharth Batra",
+    text: "Value for money. I ordered online normally, I had to sacrifice between the quality that I receive and the quality I was shown, but from here I received exactly what I was told about the quality of the dress. I am very impressed by the services.",
   },
   {
-    name: "Kavita Nair",
-    city: "Bangalore",
-    rating: 5,
-    text: "The enquiry process was seamless and the personal attention was exceptional. The saree arrived beautifully packaged — truly a premium experience from start to finish.",
-    occasion: "Banarasi Saree",
-    avatar: "https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=80&h=80&fit=crop&auto=format",
+    name: "Anoushka Sundaram",
+    text: "Brought many outfits and lehengas from Matwalji :) It was an amazing experience. Excellent quality is available here!!",
+  },
+  {
+    name: "Vinit Tripathi",
+    text: "Very nice collection & reasonable price and very friendly staff...",
+  },
+  {
+    name: "Vansh Kalra",
+    text: "Have been there since generations. Quality, comfort and customer experience, all top notch! Must visit.",
   },
 ];
 
 function TestimonialCard({ item }: { item: typeof TESTIMONIALS[0] }) {
+  const initial = item.name.charAt(0);
   return (
     <div
       className="flex-shrink-0 flex flex-col p-7 border"
@@ -776,13 +773,6 @@ function TestimonialCard({ item }: { item: typeof TESTIMONIALS[0] }) {
         borderColor: "rgba(199,161,91,0.18)",
       }}
     >
-      {/* Stars */}
-      <div className="flex gap-1 mb-4">
-        {[...Array(item.rating)].map((_, j) => (
-          <Star key={j} size={11} fill="#C7A15B" style={{ color: "#C7A15B" }} />
-        ))}
-      </div>
-
       <Quote size={18} className="mb-3" style={{ color: "#C7A15B", opacity: 0.4 }} />
 
       <p
@@ -793,18 +783,13 @@ function TestimonialCard({ item }: { item: typeof TESTIMONIALS[0] }) {
       </p>
 
       <div className="flex items-center gap-3">
-        <img
-          src={item.avatar}
-          alt={item.name}
-          className="w-10 h-10 rounded-full object-cover object-top flex-shrink-0"
-          style={{ border: "1.5px solid rgba(199,161,91,0.35)" }}
-        />
-        <div>
-          <p style={{ fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "0.88rem" }}>{item.name}</p>
-          <p className="text-[9px] tracking-[0.16em] uppercase mt-0.5" style={{ color: "rgba(232,210,166,0.35)", fontFamily: "var(--font-body)" }}>
-            {item.city} · {item.occasion}
-          </p>
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ border: "1.5px solid rgba(199,161,91,0.35)", fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "1rem" }}
+        >
+          {initial}
         </div>
+        <p style={{ fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "0.88rem" }}>{item.name}</p>
       </div>
     </div>
   );
