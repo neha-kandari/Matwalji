@@ -352,14 +352,14 @@ export default function CategoryPage({ slug, wishlist, onWishlist, onViewProduct
                   )}
                 </div>
                 <span
-                  className="text-[8px] text-center leading-tight max-w-[44px] truncate"
+                  className="text-[8.5px] text-center leading-tight w-[56px] break-words"
                   style={{
                     fontFamily: "var(--font-body)",
                     color: active ? "#2A0710" : "#7a6a5a",
                     fontWeight: active ? 600 : 400,
                   }}
                 >
-                  {color.split(" ")[0]}
+                  {color}
                 </span>
               </button>
             );

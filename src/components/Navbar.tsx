@@ -3,6 +3,7 @@ import { Heart, Menu, X, Search, ChevronDown, ChevronRight } from "lucide-react"
 import MatwaljiLogo from "./MatwaljiLogo";
 import { NAV_STRUCTURE } from "../data/categories";
 import type { Page, Product } from "../types";
+import { SOCIAL_LINKS } from "../data/social";
 
 interface Props {
   page: Page;
@@ -41,7 +42,7 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
             <button onClick={() => navTo("home")}>
-              <MatwaljiLogo />
+              <MatwaljiLogo src="/logo.png" height={64} />
             </button>
 
             {/* Desktop links */}
@@ -98,15 +99,6 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                             >
                               {sub.label}
                             </p>
-                            <p
-                              className="text-[10px] mt-0.5"
-                              style={{
-                                color: "rgba(199,161,91,0.5)",
-                                fontFamily: "var(--font-body)",
-                              }}
-                            >
-                              {sub.sub}
-                            </p>
                           </button>
                         ))}
                       </div>
@@ -154,8 +146,10 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                 )}
               </button>
 
-              <button
-                onClick={() => navTo("contact")}
+              <a
+                href={SOCIAL_LINKS.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hidden lg:flex items-center gap-1.5 px-4 py-2 text-[10.5px] tracking-[0.2em] uppercase transition-all duration-200 hover:bg-[#E8D2A6]"
                 style={{
                   background: "#C7A15B",
@@ -165,7 +159,7 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                 }}
               >
                 Contact Us
-              </button>
+              </a>
 
               <button
                 className="lg:hidden transition-colors"
@@ -223,14 +217,6 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                             }}
                           >
                             <span>{sub.label}</span>
-                            <span
-                              style={{
-                                color: "rgba(199,161,91,0.45)",
-                                fontSize: 9,
-                              }}
-                            >
-                              {sub.sub}
-                            </span>
                           </button>
                         ))}
                       </div>
@@ -250,9 +236,11 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
                 )}
               </div>
             ))}
-            <button
-              onClick={() => navTo("contact")}
-              className="block w-full text-center mx-6 my-4"
+            <a
+              href={SOCIAL_LINKS.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center mx-6 my-4"
               style={{ width: "calc(100% - 3rem)" }}
             >
               <span
@@ -261,7 +249,7 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
               >
                 Contact Us
               </span>
-            </button>
+            </a>
           </div>
         )}
       </nav>

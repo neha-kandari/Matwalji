@@ -267,7 +267,7 @@ function ShopByCategory({ setPage }: { setPage: (p: Page) => void }) {
             </div>
           </div>
 
-          {/* Row 1 right: designer sarees label panel */}
+          {/* Row 1 right: lehengas label panel */}
           <div
             className="hidden lg:flex lg:col-span-3 flex-col justify-between p-8 h-[560px]"
             style={{ background: "#2A0710", border: "1px solid rgba(199,161,91,0.15)" }}
@@ -275,21 +275,21 @@ function ShopByCategory({ setPage }: { setPage: (p: Page) => void }) {
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-px w-6" style={{ background: "#C7A15B" }} />
-                <span className="text-[9px] tracking-[0.28em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Designer Sarees</span>
+                <span className="text-[9px] tracking-[0.28em] uppercase" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>Lehengas</span>
               </div>
               <h3
                 style={{ fontFamily: "var(--font-display)", color: "#F8F4EF", fontSize: "1.7rem", fontWeight: 300, lineHeight: 1.2 }}
               >
-                Three Traditions,<br />
-                <em className="not-italic" style={{ color: "#C7A15B" }}>One Legacy</em>
+                Made for Every<br />
+                <em className="not-italic" style={{ color: "#C7A15B" }}>Celebration</em>
               </h3>
               <p className="mt-4 text-xs leading-relaxed" style={{ color: "rgba(232,210,166,0.5)", fontFamily: "var(--font-body)" }}>
-                Silk · Banarasi · Net — each a chapter in India's unparalleled textile story.
+                From the grandeur of bridal couture to statement pieces for sangeets and festive gatherings.
               </p>
             </div>
 
             <div className="space-y-3">
-              {[silk, banarasi, net].map((cat) => (
+              {[bridal, nonBridal].map((cat) => (
                 <button
                   key={cat.slug}
                   onClick={() => setPage(cat.slug)}
@@ -304,11 +304,11 @@ function ShopByCategory({ setPage }: { setPage: (p: Page) => void }) {
               ))}
 
               <button
-                onClick={() => setPage("sarees-banarasi")}
+                onClick={() => setPage("bridal-lehengas")}
                 className="group flex items-center gap-2 mt-4 text-[10px] tracking-[0.22em] uppercase transition-all duration-200 hover:gap-3"
                 style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}
               >
-                View All Sarees
+                View All Lehengas
                 <ArrowRight size={11} />
               </button>
             </div>
@@ -380,19 +380,12 @@ function CraftsmanshipStory({ setPage }: { setPage: (p: Page) => void }) {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[2fr_3fr]">
         <div className="relative min-h-[240px] overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=900&h=1000&fit=crop&auto=format"
+            src="/ourHeritage.png"
             alt="Heritage craftsmanship"
             className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[1.6s] ease-out"
             style={{ transform: revealed ? "scale(1)" : "scale(1.08)" }}
           />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent 60%, rgba(42,7,16,0.7) 100%)" }} />
-          <div
-            className="absolute bottom-5 left-5 border px-4 py-3"
-            style={{ ...fadeUp(500), background: "rgba(42,7,16,0.82)", borderColor: "rgba(199,161,91,0.3)", backdropFilter: "blur(4px)" }}
-          >
-            <div style={{ fontFamily: "var(--font-display)", color: "#C7A15B", fontSize: "1.9rem", fontWeight: 300, lineHeight: 1 }}>1998</div>
-            <div className="text-[9px] tracking-[0.25em] uppercase mt-1" style={{ color: "rgba(232,210,166,0.55)", fontFamily: "var(--font-body)" }}>Est. in Surat, India</div>
-          </div>
         </div>
 
         <div className="flex flex-col justify-center px-8 lg:px-14 py-12 lg:py-14">

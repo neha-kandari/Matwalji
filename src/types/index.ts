@@ -47,7 +47,7 @@ export interface CategoryMeta {
 export interface NavItem {
   label: string;
   page: Page | null;
-  dropdown: { label: string; page: Page; sub: string }[] | null;
+  dropdown: { label: string; page: Page }[] | null;
 }
 
 // ── Admin-managed filter values (colors / sizes / tags) ────────────────────────

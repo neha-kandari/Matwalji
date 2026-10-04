@@ -113,8 +113,8 @@ export default function App() {
   }, []);
 
   function navigateTo(p: Page) {
+    window.scrollTo(0, 0);
     setPage(p);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function viewProduct(p: Product) {
