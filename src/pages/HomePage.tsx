@@ -5,6 +5,7 @@ import ProductCard from "../components/ProductCard";
 import Newsletter from "../components/Newsletter";
 import GoldDivider from "../components/GoldDivider";
 import type { Page, Product, CategorySlug, HomeSection, HomeSectionId } from "../types";
+import { SOCIAL_LINKS } from "../data/social";
 
 // ─── Marquee Ticker ────────────────────────────────────────────────────────────
 const TICKER_ITEMS = [
@@ -246,7 +247,7 @@ function ShopByCategory({ setPage }: { setPage: (p: Page) => void }) {
             </h2>
           </div>
           <p className="max-w-xs text-sm leading-relaxed lg:text-right pb-1" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
-            Every category a distinct tradition — from the grandeur of bridal couture to the poetry of hand-woven silk.
+            Bridal classics, modern silhouettes, and colours that make a statement. Discover the lehenga that feels unmistakably you.
           </p>
         </div>
 
@@ -610,7 +611,7 @@ function Bestsellers({ wishlist, onWishlist, onViewProduct, products = [] }: {
     <HScrollRow
       eyebrow="Most Loved"
       title="Bestsellers"
-      subtitle="The pieces our brides keep coming back for — timeless, exquisite, unforgettable."
+      subtitle="The lehengas our brides love most timeless silhouettes, exquisite craftsmanship, and colours made to be remembered."
       items={bestsellers}
       wishlist={wishlist}
       onWishlist={onWishlist}
@@ -621,10 +622,10 @@ function Bestsellers({ wishlist, onWishlist, onViewProduct, products = [] }: {
 
 // ─── Why MATWALJI ──────────────────────────────────────────────────────────────
 const WHY_ITEMS = [
-  { icon: Gem, title: "Premium Fabrics", desc: "Sourced from master weavers in Varanasi, Kanchipuram, and Chanderi." },
-  { icon: Sparkles, title: "Handcrafted", desc: "Each piece is hand-embroidered by artisans with decades of heritage expertise." },
-  { icon: Award, title: "Timeless Design", desc: "Rooted in tradition, refined for the modern Indian woman of discerning taste." },
-  { icon: Shield, title: "Exclusive Drops", desc: "Limited edition pieces ensure every MATWALJI creation remains truly rare." },
+  { icon: Gem, title: "Premium Craftsmanship", desc: "Quality chosen for every detail. From luxurious fabrics to intricate embellishments, every lehenga is selected with an eye for beauty, finish, and feel." },
+  { icon: Sparkles, title: "Artisanal Detail", desc: "Made with patience, finished with precision. Intricate embroidery and thoughtful detailing come together to create lehengas that feel truly special." },
+  { icon: Award, title: "Timeless Design", desc: "Traditional at heart, effortless in style. Classic Indian artistry meets contemporary silhouettes, colours, and details made for the modern bride." },
+  { icon: Shield, title: "Exclusive Collections", desc: "Lehengas worth making an occasion of. Curated styles, distinctive colours, and limited pieces chosen to make your celebration feel uniquely yours." },
 ];
 
 function WhySection() {
@@ -706,10 +707,15 @@ function LookbookGallery({ section }: { section: HomeSection }) {
             </h2>
           </div>
           {section.handle && (
-            <div className="flex items-center gap-2 pb-1">
+            <a
+              href={SOCIAL_LINKS.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 pb-1 group"
+            >
               <Instagram size={15} style={{ color: "#C7A15B" }} />
-              <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{section.handle}</span>
-            </div>
+              <span className="text-[10px] tracking-[0.2em] uppercase transition-colors group-hover:text-[#2A0710]" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{section.handle}</span>
+            </a>
           )}
         </div>
 
@@ -859,10 +865,10 @@ function TestimonialsSection() {
 // ─── Process Strip ─────────────────────────────────────────────────────────────
 function ProcessStrip() {
   const steps = [
-    { num: "01", title: "Browse & Discover", desc: "Explore our curated collections across 5 categories." },
-    { num: "02", title: "Save to Wishlist", desc: "Add your favourite pieces to your personal wishlist." },
-    { num: "03", title: "Send Enquiry", desc: "Share your details — no payment, just a conversation." },
-    { num: "04", title: "Personal Consultation", desc: "Our stylist reaches out within 24 hours to assist you." },
+    { num: "1", title: "Browse & Discover", desc: "Explore our curated collections across 5 categories." },
+    { num: "2", title: "Save to Wishlist", desc: "Add your favourite pieces to your personal wishlist." },
+    { num: "3", title: "Send An Enquiry", desc: "Share the lehengas you love with us no payment required, just tell us what caught your eye." },
+    { num: "4", title: "Personal Consultation", desc: "Our stylist reaches out within 24 hours to assist you." },
   ];
 
   return (
@@ -878,7 +884,7 @@ function ProcessStrip() {
               className="relative pl-5 border-l flex-shrink-0 w-[230px] snap-start sm:w-auto"
               style={{ borderColor: "rgba(199,161,91,0.3)" }}
             >
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "rgba(199,161,91,0.18)", fontWeight: 300, lineHeight: 1, marginBottom: 6 }}>{num}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "#C7A15B", fontWeight: 400, lineHeight: 1, marginBottom: 6 }}>{num}</div>
               <h4 style={{ fontFamily: "var(--font-display)", color: "#2A0710", fontSize: "1.05rem", fontWeight: 400 }} className="mb-1.5">{title}</h4>
               <p className="text-xs leading-relaxed" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{desc}</p>
             </div>

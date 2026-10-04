@@ -7,7 +7,7 @@ export const DEFAULT_HOME_SECTIONS: Record<HomeSectionId, HomeSection> = {
     id: "featured",
     eyebrow: "Handpicked",
     title: "Featured Pieces",
-    subtitle: "Our most beloved creations — each one a dialogue between tradition and artistry.",
+    subtitle: "A curated selection of statement silhouettes, intricate craftsmanship, and timeless bridal elegance chosen for the moments that deserve to be remembered.",
     visible: true,
     mode: "auto",
     maxItems: 8,
@@ -20,7 +20,7 @@ export const DEFAULT_HOME_SECTIONS: Record<HomeSectionId, HomeSection> = {
     id: "new-arrivals",
     eyebrow: "Just In",
     title: "New Arrivals",
-    subtitle: "Fresh from the atelier — the latest additions to our curated collection.",
+    subtitle: "New silhouettes, exquisite details, and captivating colours explore the latest lehengas to join our curated collection.",
     visible: true,
     mode: "auto",
     maxItems: 12,
@@ -47,7 +47,7 @@ export const DEFAULT_HOME_SECTIONS: Record<HomeSectionId, HomeSection> = {
       "https://images.unsplash.com/photo-1692850852630-495a2145c2a4?w=500&h=380&fit=crop&auto=format",
       "https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=500&h=380&fit=crop&auto=format",
     ].map((src, i) => ({ src, alt: `Gallery ${i + 1}` })),
-    handle: "@matwalji.sarees",
+    handle: "@matwalji",
   },
 };
 

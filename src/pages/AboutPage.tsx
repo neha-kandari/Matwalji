@@ -56,20 +56,13 @@ export default function AboutPage() {
               style={{ color: "#4a3a2a", fontFamily: "var(--font-body)" }}
             >
               <p>
-                Founded in Surat in 1998, MATWALJI Sarees began as a singular vision: to preserve
-                India's ancient textile craftsmanship while making it accessible to the modern woman
-                of discerning taste.
+                MATWALJI brings together the richness of Indian craftsmanship with the elegance of contemporary bridal fashion. Based in Delhi, we curate exquisite lehengas designed for brides who appreciate timeless beauty, intricate detail, and distinctive style.
               </p>
               <p>
-                For over two decades, we have traveled across Varanasi, Kanchipuram, Chanderi, and
-                Dhaka, forging deep relationships with master weavers whose families have practiced
-                their craft for generations.
+                From classic bridal silhouettes to statement-making contemporary designs, every piece is thoughtfully selected for its craftsmanship, colour, and character.
               </p>
               <p>
-                Today, MATWALJI stands as a trusted name in luxury Indian fashion — beloved by
-                brides, collectors, and connoisseurs alike. Our collections span bridal lehengas
-                from ₹10,000, non-bridal lehengas from ₹7,000, and designer sarees in silk,
-                banarasi, and net.
+                Today, MATWALJI is a destination for brides seeking memorable lehengas for their most special celebrations from traditional bridal looks to modern occasion wear, curated with a distinctly refined eye.
               </p>
             </div>
           </div>
