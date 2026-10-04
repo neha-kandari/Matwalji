@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, ArrowRight, Star } from "lucide-react";
+import { Heart, ArrowRight } from "lucide-react";
 import type { Product } from "../types";
 
 interface Props {
@@ -136,15 +136,6 @@ export default function ProductCard({ product, wishlisted, onWishlist, onView }:
           >
             {product.price}
           </span>
-
-          {/* Rating pill */}
-          <div
-            className="flex items-center gap-1 px-2 py-1 rounded-sm"
-            style={{ background: "rgba(199,161,91,0.1)", border: "1px solid rgba(199,161,91,0.25)" }}
-          >
-            <Star size={9} fill="#C7A15B" style={{ color: "#C7A15B" }} />
-            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.68rem", color: "#2A0710", fontWeight: 600, letterSpacing: "0.04em" }}>5.0</span>
-          </div>
         </div>
       </div>
     </div>

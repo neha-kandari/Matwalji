@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, Star, Heart, PlayCircle, Instagram, Facebook, Phone, Check, ExternalLink } from "lucide-react";
+import { ChevronRight, Heart, PlayCircle, Instagram, Facebook, Phone, Check, ExternalLink } from "lucide-react";
 
 const COLOR_HEX: Record<string, string> = {
   scarlet: "#9B1B30", ivory: "#FFFDF0", "deep maroon": "#4A0010", maroon: "#6D0010",
@@ -233,20 +233,7 @@ export default function ProductDetailPage({
               {product.name}
             </h1>
 
-            {/* Stars */}
-            <div className="flex items-center gap-1.5 mt-3 mb-5">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={12} fill="#C7A15B" style={{ color: "#C7A15B" }} />
-              ))}
-              <span
-                className="text-xs ml-1"
-                style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}
-              >
-                (8 reviews)
-              </span>
-            </div>
-
-            <GoldDivider className="mb-6" />
+            <GoldDivider className="mt-5 mb-6" />
 
             {/* Price */}
             <div className="flex items-baseline gap-3 mb-5">
