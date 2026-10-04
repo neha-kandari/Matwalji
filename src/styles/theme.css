@@ -134,7 +134,7 @@
        position: sticky element (even with no actual overflow) makes
        browsers treat that ancestor as the sticky element's scroll
        container instead of the page, which breaks the sticky effect. */
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   html {
