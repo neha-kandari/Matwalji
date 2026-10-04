@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useMemo } from "react";
 
 // ── Layout components ──────────────────────────────────────────────────────────
 import Navbar from "../components/Navbar";
@@ -111,6 +111,10 @@ export default function App() {
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page, selectedProduct]);
 
   function navigateTo(p: Page) {
     window.scrollTo(0, 0);
