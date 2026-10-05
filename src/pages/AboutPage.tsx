@@ -4,25 +4,38 @@ export default function AboutPage() {
   return (
     <div className="pt-[70px]" style={{ background: "#F8F4EF", minHeight: "100vh" }}>
       {/* Hero */}
-      <div className="relative h-72 flex items-end overflow-hidden">
+      <div className="relative overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1619516388835-2b60acc4049e?w=1600&h=500&fit=crop&auto=format"
+          src="/AboutHero.png"
           alt="Our Story"
-          className="absolute inset-0 w-full h-full object-cover object-top"
+          className="block w-full h-auto"
         />
-        <div className="absolute inset-0" style={{ background: "rgba(42,7,16,0.65)" }} />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 w-full pb-10">
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              color: "#F8F4EF",
-              fontSize: "3.8rem",
-              fontWeight: 300,
-              lineHeight: 1.1,
-            }}
-          >
-            Our Story
-          </h1>
+        <div className="hidden sm:block absolute inset-0" style={{ background: "rgba(42,7,16,0.6)" }} />
+        <div className="relative sm:absolute sm:inset-0 z-10 flex items-center justify-center text-center bg-[#2A0710] sm:bg-transparent">
+          <div className="w-full max-w-3xl mx-auto px-6 py-10 sm:py-0">
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "#F8F4EF",
+                fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
+                fontWeight: 400,
+                lineHeight: 1.05,
+              }}
+            >
+              Our <em style={{ color: "#C7A15B", fontStyle: "italic" }}>Story</em>
+            </h1>
+            <p
+              className="mt-4"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "#E8D2A6",
+                fontStyle: "italic",
+                fontSize: "clamp(1.1rem, 2.2vw, 1.6rem)",
+              }}
+            >
+              Weaving Heritage Into Modern Luxury
+            </p>
+          </div>
         </div>
       </div>
 
@@ -36,7 +49,7 @@ export default function AboutPage() {
                 className="text-[10px] tracking-[0.3em] uppercase"
                 style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}
               >
-                Est. 1998 · Surat
+                Est. 1958 · Delhi
               </span>
             </div>
             <h2
@@ -71,7 +84,7 @@ export default function AboutPage() {
             className="relative aspect-[4/5] overflow-hidden rounded-[2px] bg-[#e8ddd5]"
           >
             <img
-              src="https://images.unsplash.com/photo-1617633150878-7df1d12a9a57?w=700&h=900&fit=crop&auto=format"
+              src="/aboutUs.png"
               alt="MATWALJI craftsmanship"
               className="w-full h-full object-cover object-top"
             />

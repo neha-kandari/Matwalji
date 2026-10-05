@@ -382,22 +382,28 @@ export default function CategoryPage({ slug, wishlist, onWishlist, onViewProduct
     <div className="pt-[70px]" style={{ background: "#F8F4EF", minHeight: "100vh" }}>
 
       {/* ── Hero banner ────────────────────────────────────────────────────────── */}
-      <div className="relative h-64 overflow-hidden flex items-end">
-        <img src={meta.heroBanner} alt={meta.heading} className="absolute inset-0 w-full h-full object-cover object-top" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(42,7,16,0.88) 0%, rgba(42,7,16,0.3) 60%, transparent 100%)" }} />
-        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: "linear-gradient(to bottom, transparent, #C7A15B, transparent)" }} />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 w-full pb-8">
-          <div className="flex items-center gap-2 mb-2.5">
-            <button onClick={() => setPage("home")} className="text-[10px] tracking-wide hover:text-[#C7A15B] transition-colors" style={{ color: "rgba(199,161,91,0.5)", fontFamily: "var(--font-body)" }}>Home</button>
-            <ChevronRight size={10} style={{ color: "rgba(199,161,91,0.35)" }} />
-            <span className="text-[10px] tracking-wide" style={{ color: "rgba(199,161,91,0.5)", fontFamily: "var(--font-body)" }}>{parentLabel}</span>
-            <ChevronRight size={10} style={{ color: "rgba(199,161,91,0.35)" }} />
-            <span className="text-[10px] tracking-wide" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>{meta.label}</span>
-          </div>
-          <h1 style={{ fontFamily: "var(--font-display)", color: "#F8F4EF", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 300, lineHeight: 1.1 }}>
-            {meta.heading}
+      <div className="relative overflow-hidden">
+        <img src={meta.heroBanner} alt={meta.heading} className="block w-full h-auto" />
+        <div className="hidden sm:block absolute inset-0" style={{ background: "linear-gradient(to right, rgba(42,7,16,0.85) 0%, rgba(42,7,16,0.45) 50%, transparent 85%)" }} />
+        <div className="hidden sm:block absolute left-0 top-0 bottom-0 w-1" style={{ background: "linear-gradient(to bottom, transparent, #C7A15B, transparent)" }} />
+        <div className="relative sm:absolute sm:inset-0 z-10 flex items-center bg-[#2A0710] sm:bg-transparent">
+          <div className="w-full max-w-7xl mx-auto px-6 lg:px-10 py-8 sm:py-0">
+          <h1 style={{ fontFamily: "var(--font-display)", color: "#F8F4EF", fontSize: "clamp(2.4rem, 6vw, 4.5rem)", fontWeight: 400, lineHeight: 1.05 }}>
+            {meta.heading.split(" ").slice(0, -1).join(" ")}{" "}
+            <em style={{ color: "#C7A15B", fontStyle: "italic" }}>{meta.heading.split(" ").slice(-1)}</em>
           </h1>
-          <p className="text-xs mt-1.5" style={{ color: "#C7A15B", fontFamily: "var(--font-body)" }}>{meta.startingFrom}</p>
+          <p className="mt-3 text-sm tracking-[0.2em] uppercase" style={{ color: "#E8D2A6", fontFamily: "var(--font-body)" }}>{meta.startingFrom}</p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#F8F4EF" }}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 flex items-center gap-2">
+          <button onClick={() => setPage("home")} className="text-[10px] tracking-wide hover:text-[#C7A15B] transition-colors" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>Home</button>
+          <ChevronRight size={10} style={{ color: "rgba(122,106,90,0.5)" }} />
+          <span className="text-[10px] tracking-wide" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{parentLabel}</span>
+          <ChevronRight size={10} style={{ color: "rgba(122,106,90,0.5)" }} />
+          <span className="text-[10px] tracking-wide" style={{ color: "#2A0710", fontFamily: "var(--font-body)" }}>{meta.label}</span>
         </div>
       </div>
 

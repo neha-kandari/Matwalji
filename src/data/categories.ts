@@ -7,7 +7,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     subhead:
       "Crafted for the most important day of your life — each bridal lehenga is a masterwork of embroidery, silk, and timeless silhouette.",
     heroBanner:
-      "https://images.unsplash.com/photo-1654764746225-e63f5e90facd?w=1600&h=500&fit=crop&auto=format",
+      "/lehenga/Hero.png",
     startingFrom: "Starting from ₹10,000",
   },
   "non-bridal-lehengas": {
@@ -16,7 +16,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     subhead:
       "From sangeets to receptions and festive gatherings — statement lehengas that turn every occasion into a memory.",
     heroBanner:
-      "https://images.unsplash.com/photo-1610047614256-023d7c028d0b?w=1600&h=500&fit=crop&auto=format",
+      "/lehenga/Hero.png",
     startingFrom: "Starting from ₹7,000",
   },
   "sarees-silk": {
@@ -25,7 +25,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     subhead:
       "Pure silk woven into poetry — Kanjivaram, Mysore, Tussar, and beyond. Each yard a testament to India's greatest textile tradition.",
     heroBanner:
-      "https://images.unsplash.com/photo-1727430228383-aa1fb59db8bf?w=1600&h=500&fit=crop&auto=format",
+      "/sarees/Hero.png",
     startingFrom: "Starting from ₹8,500",
   },
   "sarees-banarasi": {
@@ -34,7 +34,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     subhead:
       "Born in the holy city of Varanasi, woven with real zari and centuries of devotion. The crown jewel of Indian saree culture.",
     heroBanner:
-      "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=1600&h=500&fit=crop&auto=format",
+      "/sarees/Hero.png",
     startingFrom: "Starting from ₹12,000",
   },
   "sarees-net": {
@@ -43,7 +43,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     subhead:
       "Sheer, ethereal, and endlessly glamorous. Our designer net sarees blend delicate embroidery with contemporary elegance.",
     heroBanner:
-      "https://images.unsplash.com/photo-1692850852630-495a2145c2a4?w=1600&h=500&fit=crop&auto=format",
+      "/sarees/Hero.png",
     startingFrom: "Starting from ₹9,000",
   },
   "sarees-premium": {
@@ -52,7 +52,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     subhead:
       "Our most exclusive drapes — rare weaves, hand-finished embellishment, and limited-edition pieces reserved for the connoisseur.",
     heroBanner:
-      "https://images.unsplash.com/photo-1617633150878-7df1d12a9a57?w=1600&h=500&fit=crop&auto=format",
+      "/sarees/Hero.png",
     startingFrom: "Starting from ₹45,000",
   },
 };

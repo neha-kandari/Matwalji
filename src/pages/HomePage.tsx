@@ -404,11 +404,11 @@ function CraftsmanshipStory({ setPage }: { setPage: (p: Page) => void }) {
           </div>
 
           <p className="text-sm leading-[1.8] mb-4" style={{ ...fadeUp(400), color: "rgba(232,210,166,0.65)", fontFamily: "var(--font-body)" }}>
-            Since 1998, we have traveled to the looms of Varanasi, the silk farms of Kanchipuram and the ateliers of Chanderi to bring you India's finest textiles, curated by hand.
+            Based in the heart of Delhi, we bring together timeless Indian craftsmanship and contemporary bridal style, with lehengas at the heart of our collection. From intricate embroidery to rich fabrics and thoughtfully crafted silhouettes, every piece is chosen to make your celebrations unforgettable.
           </p>
 
           <p className="text-sm leading-[1.8] mb-7" style={{ ...fadeUp(450), color: "rgba(232,210,166,0.65)", fontFamily: "var(--font-body)" }}>
-            Every piece carries the fingerprints of master artisans whose families have practiced their craft for generations. We see each saree and lehenga as a living archive, not a passing trend.
+            Our collection celebrates the beauty of Indian occasionwear from statement bridal lehengas to elegant pieces for every wedding function. Each lehenga is curated with attention to colour, craftsmanship and detail, so you can find a look that feels uniquely yours.
           </p>
 
           <button
