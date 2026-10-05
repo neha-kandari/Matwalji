@@ -17,7 +17,7 @@ export default function AboutPage() {
               style={{
                 fontFamily: "var(--font-display)",
                 color: "#F8F4EF",
-                fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
+                fontSize: "clamp(2rem, 6vw, 4.5rem)",
                 fontWeight: 400,
                 lineHeight: 1.05,
               }}
@@ -30,7 +30,7 @@ export default function AboutPage() {
                 fontFamily: "var(--font-display)",
                 color: "#E8D2A6",
                 fontStyle: "italic",
-                fontSize: "clamp(1.1rem, 2.2vw, 1.6rem)",
+                fontSize: "clamp(0.95rem, 2.2vw, 1.6rem)",
               }}
             >
               Weaving Heritage Into Modern Luxury

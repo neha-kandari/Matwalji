@@ -388,11 +388,11 @@ export default function CategoryPage({ slug, wishlist, onWishlist, onViewProduct
         <div className="hidden sm:block absolute left-0 top-0 bottom-0 w-1" style={{ background: "linear-gradient(to bottom, transparent, #C7A15B, transparent)" }} />
         <div className="relative sm:absolute sm:inset-0 z-10 flex items-center bg-[#2A0710] sm:bg-transparent">
           <div className="w-full max-w-7xl mx-auto px-6 lg:px-10 py-8 sm:py-0">
-          <h1 style={{ fontFamily: "var(--font-display)", color: "#F8F4EF", fontSize: "clamp(2.4rem, 6vw, 4.5rem)", fontWeight: 400, lineHeight: 1.05 }}>
+          <h1 style={{ fontFamily: "var(--font-display)", color: "#F8F4EF", fontSize: "clamp(1.9rem, 6vw, 4.5rem)", fontWeight: 400, lineHeight: 1.05 }}>
             {meta.heading.split(" ").slice(0, -1).join(" ")}{" "}
             <em style={{ color: "#C7A15B", fontStyle: "italic" }}>{meta.heading.split(" ").slice(-1)}</em>
           </h1>
-          <p className="mt-3 text-sm tracking-[0.2em] uppercase" style={{ color: "#E8D2A6", fontFamily: "var(--font-body)" }}>{meta.startingFrom}</p>
+          <p className="mt-3 text-xs sm:text-sm tracking-[0.2em] uppercase" style={{ color: "#E8D2A6", fontFamily: "var(--font-body)" }}>{meta.startingFrom}</p>
           </div>
         </div>
       </div>
