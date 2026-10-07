@@ -396,7 +396,7 @@ function CraftsmanshipStory({ setPage }: { setPage: (p: Page) => void }) {
           </div>
 
           <h2 style={{ ...fadeUp(200), fontFamily: "var(--font-display)", fontSize: "clamp(1.6rem, 2.6vw, 2.2rem)", color: "#F8F4EF", fontWeight: 300, lineHeight: 1.2 }}>
-            Two Decades of <em className="not-italic" style={{ color: "#C7A15B" }}>Woven Stories</em>
+            Five Decades of <em className="not-italic" style={{ color: "#C7A15B" }}>Woven Stories</em>
           </h2>
 
           <div style={fadeUp(300)}>
@@ -427,9 +427,9 @@ function CraftsmanshipStory({ setPage }: { setPage: (p: Page) => void }) {
 // ─── Stats Bar ─────────────────────────────────────────────────────────────────
 function StatsBar() {
   const stats = [
-    { num: "25+", label: "Years of Heritage" },
+    { num: "50+", label: "Years of Heritage" },
     { num: "500+", label: "Exclusive Designs" },
-    { num: "10,000+", label: "Happy Brides" },
+    { num: "250,000+", label: "Happy Customers" },
     { num: "5", label: "Craft Traditions" },
   ];
   return (

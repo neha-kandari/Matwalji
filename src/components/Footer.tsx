@@ -23,7 +23,7 @@ export default function Footer({ setPage }: Props) {
               className="mt-5 text-xs leading-relaxed"
               style={{ color: "rgba(232,210,166,0.45)", fontFamily: "var(--font-body)" }}
             >
-              Elegance woven into every thread. Purveyors of luxury Indian ethnic fashion since 1998.
+              Elegance woven into every thread. Purveyors of luxury Indian ethnic fashion since 1958.
             </p>
             <div className="flex gap-2.5 mt-5">
               {[
