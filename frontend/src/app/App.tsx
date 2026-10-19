@@ -18,6 +18,7 @@ import type { Page, Product, CategorySlug, FilterOption, HomeSection, HomeSectio
 import { CATEGORY_SLUGS } from "../data/categories";
 import { ALL_PRODUCTS } from "../data/products";
 import { DEFAULT_FILTER_OPTIONS } from "../data/filters";
+import { apiUrl } from "../lib/apiBase";
 import { DEFAULT_HOME_SECTIONS, normalizeHomeSection, resolveHomeSections } from "../data/homeSections";
 
 function getInitialPage(): Page {
@@ -36,7 +37,7 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/home-sections")
+    fetch(apiUrl("/api/home-sections"))
       .then((r) => {
         if (!r.ok) throw new Error(`Failed to load home sections (${r.status})`);
         return r.json() as Promise<HomeSection[]>;
@@ -55,7 +56,7 @@ export default function App() {
   // Load products from the database on first mount.
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/products")
+    fetch(apiUrl("/api/products"))
       .then((r) => {
         if (!r.ok) throw new Error(`Failed to load products (${r.status})`);
         return r.json() as Promise<Product[]>;
@@ -77,7 +78,7 @@ export default function App() {
   // Load admin-managed filter values (colors/sizes/tags) from the database.
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/filters")
+    fetch(apiUrl("/api/filters"))
       .then((r) => {
         if (!r.ok) throw new Error(`Failed to load filters (${r.status})`);
         return r.json() as Promise<FilterOption[]>;
@@ -151,7 +152,7 @@ export default function App() {
 
   async function addProduct(p: Product): Promise<SaveResult> {
     try {
-      const res = await fetch("/api/products", {
+      const res = await fetch(apiUrl("/api/products"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(p),
@@ -167,7 +168,7 @@ export default function App() {
 
   async function updateProduct(updated: Product): Promise<SaveResult> {
     try {
-      const res = await fetch(`/api/products/${updated.id}`, {
+      const res = await fetch(apiUrl(`/api/products/${updated.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updated),
@@ -185,7 +186,7 @@ export default function App() {
 
   async function deleteProduct(id: number): Promise<boolean> {
     try {
-      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      const res = await fetch(apiUrl(`/api/products/${id}`), { method: "DELETE" });
       if (!res.ok) return false;
       setProducts((prev) => prev.filter((p) => p.id !== id));
       setWishlist((prev) => prev.filter((p) => p.id !== id));
@@ -199,7 +200,7 @@ export default function App() {
   // ── Filter option CRUD (colors/sizes/tags, persisted via /api/filters) ─────
   async function addFilterOption(opt: Omit<FilterOption, "id">): Promise<boolean> {
     try {
-      const res = await fetch("/api/filters", {
+      const res = await fetch(apiUrl("/api/filters"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(opt),
@@ -215,7 +216,7 @@ export default function App() {
 
   async function updateFilterOption(updated: FilterOption): Promise<boolean> {
     try {
-      const res = await fetch(`/api/filters/${updated.id}`, {
+      const res = await fetch(apiUrl(`/api/filters/${updated.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updated),
@@ -231,7 +232,7 @@ export default function App() {
 
   async function deleteFilterOption(id: string): Promise<boolean> {
     try {
-      const res = await fetch(`/api/filters/${id}`, { method: "DELETE" });
+      const res = await fetch(apiUrl(`/api/filters/${id}`), { method: "DELETE" });
       if (!res.ok) return false;
       setFilterOptions((prev) => prev.filter((f) => f.id !== id));
       return true;
@@ -243,7 +244,7 @@ export default function App() {
   // ── Home page section content (persisted via /api/home-sections) ───────────
   async function updateHomeSection(section: HomeSection): Promise<SaveResult> {
     try {
-      const res = await fetch(`/api/home-sections/${section.id}`, {
+      const res = await fetch(apiUrl(`/api/home-sections/${section.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(section),

@@ -1,9 +1,9 @@
 // One-off script to load the products and filter values currently hardcoded
-// in src/data/ into MongoDB. Run with: npm run seed
+// in frontend/src/data/ into MongoDB. Run with: npm run seed
 import "dotenv/config";
 import { MongoClient } from "mongodb";
-import { ALL_PRODUCTS } from "../src/data/products";
-import { DEFAULT_FILTER_OPTIONS } from "../src/data/filters";
+import { ALL_PRODUCTS } from "../../frontend/src/data/products";
+import { DEFAULT_FILTER_OPTIONS } from "../../frontend/src/data/filters";
 
 async function main() {
   const uri = process.env.MONGODB_URI;

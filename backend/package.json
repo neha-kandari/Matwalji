@@ -1,0 +1,27 @@
+{
+  "name": "matwalji-backend",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --outfile=server.js --packages=external",
+    "dev": "tsx server.ts",
+    "start": "node server.js",
+    "seed": "tsx scripts/seed.ts",
+    "migrate-images": "tsx scripts/migrate-public-images.ts"
+  },
+  "dependencies": {
+    "cloudinary": "^2.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.4",
+    "express": "^5.1.0",
+    "mongodb": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@vercel/node": "^16.0.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15"
+  }
+}

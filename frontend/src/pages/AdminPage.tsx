@@ -11,6 +11,7 @@ import { CATEGORY_SLUGS, CATEGORY_META } from "../data/categories";
 import MatwaljiLogo from "../components/MatwaljiLogo";
 import type { CategorySlug, Product, FilterOption, FilterType, HomeSection, HomeSectionId, SaveResult } from "../types";
 import { DEFAULT_HOME_SECTIONS } from "../data/homeSections";
+import { apiUrl } from "../lib/apiBase";
 
 const ADMIN_PASSWORD = "matwalji@admin";
 
@@ -96,7 +97,7 @@ function compressImageFile(file: File, maxDimension = 1600, quality = 0.82): Pro
 // base64 string — the product/section documents in MongoDB stay small, and
 // the photo is served from Cloudinary's CDN rather than from our own server.
 async function uploadToCloudinary(dataUrl: string, folder: string): Promise<string> {
-  const res = await fetch("/api/upload", {
+  const res = await fetch(apiUrl("/api/upload"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ data: dataUrl, folder }),

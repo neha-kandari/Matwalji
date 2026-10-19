@@ -1,16 +1,25 @@
-// Production server for non-Vercel hosts (e.g. Hostinger's hPanel Node.js
-// Web App). Vercel deploys each file in /api as its own serverless function;
-// a plain host instead needs one long-running process, so this wires the
-// same handlers into an Express app and serves the Vite build alongside them.
+// JSON API server, deployed as its own Hostinger Node.js (Express) app,
+// separate from the frontend (deployed separately as a static Vite build).
+// They used to run as one process with Express also serving the frontend's
+// static files, but Hostinger's importer couldn't reliably classify a repo
+// that mixed Vite and Express signals in one package.json — splitting them
+// into two single-purpose apps is Hostinger's own documented fix for that.
+// Because of the split, the frontend now calls this API cross-origin, so
+// CORS is required below (see FRONTEND_ORIGIN).
 //
 // The handlers in /api are reused unchanged — their (req, res) => {} shape
 // already matches Express (req.query, req.body, res.status().json() all work
 // natively), so this file is pure routing/plumbing, not a rewrite.
 // Loads .env locally; on Hostinger the real values come from hPanel's
 // environment variables panel instead, and this becomes a harmless no-op.
+//
+// `npm run build` compiles this file to server.js, which is committed (not
+// gitignored) so a host that scans the raw repo before building — as
+// Hostinger does — finds a real .js entry file immediately. Don't hand-edit
+// server.js; it's overwritten on every build.
 import "dotenv/config";
 import express, { type Request, type RequestHandler, type Response } from "express";
-import path from "node:path";
+import cors from "cors";
 
 import productsIndex from "./api/products/index.js";
 import productsById from "./api/products/[id].js";
@@ -44,6 +53,19 @@ function wrap(handler: ApiHandler): RequestHandler {
 }
 
 const app = express();
+
+// FRONTEND_ORIGIN can be a comma-separated list (e.g. your production domain
+// plus a local dev URL). Left unset, every origin is allowed — fine while
+// nothing here reads cookies/sessions (the admin "login" is a client-side
+// password check, not a server session), but set it once the frontend's
+// real domain is known to stop other sites from being able to call this API
+// from a browser.
+const allowedOrigins = (process.env.FRONTEND_ORIGIN ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+app.use(cors({ origin: allowedOrigins.length > 0 ? allowedOrigins : true }));
+
 // Default 100kb limit is too small for a base64-encoded photo upload.
 app.use(express.json({ limit: "15mb" }));
 
@@ -63,23 +85,9 @@ app.put("/api/home-sections/:id", wrap(withParam(homeSectionsById, "id")));
 
 app.post("/api/upload", wrap(uploadHandler));
 
-// Any other /api/* request is an unknown endpoint, not a page — fail as
-// JSON instead of falling through to the SPA's index.html below.
-app.use("/api", (_req, res) => {
-  res.status(404).json({ error: "Not found" });
-});
-
-// Resolved against the working directory (the app root both on Hostinger and
-// locally) rather than this file's own location, since this same source
-// compiles to dist/server.js for production — see package.json's "build".
-const distDir = path.join(process.cwd(), "dist");
-app.use(express.static(distDir));
-
-// SPA fallback: let react-router handle every non-API route client-side.
-// (No path pattern: Express 5's path-to-regexp rejects a bare "*", and this
-// being the last middleware already means every unmatched GET lands here.)
+// Anything else is an unknown endpoint — this app serves no pages.
 app.use((_req, res) => {
-  res.sendFile(path.join(distDir, "index.html"));
+  res.status(404).json({ error: "Not found" });
 });
 
 app.use((err: unknown, _req: Request, res: Response, _next: (err?: unknown) => void) => {
