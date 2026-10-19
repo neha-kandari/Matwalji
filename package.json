@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --packages=external",
     "dev": "vite",
-    "start": "tsx server.ts",
+    "start": "node dist/server.js",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
@@ -75,6 +75,7 @@
     "@types/express": "^5.0.0",
     "@vercel/node": "^16.0.1",
     "@vitejs/plugin-react": "4.7.0",
+    "esbuild": "^0.28.2",
     "tailwindcss": "4.1.12",
     "tsx": "^4.23.15",
     "vite": "6.3.5"

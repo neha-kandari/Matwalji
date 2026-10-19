@@ -11,7 +11,6 @@
 import "dotenv/config";
 import express, { type Request, type RequestHandler, type Response } from "express";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import productsIndex from "./api/products/index.js";
 import productsById from "./api/products/[id].js";
@@ -20,8 +19,6 @@ import filtersById from "./api/filters/[id].js";
 import homeSectionsIndex from "./api/home-sections/index.js";
 import homeSectionsById from "./api/home-sections/[id].js";
 import uploadHandler from "./api/upload.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 type ApiHandler = (req: Request, res: Response) => Promise<void>;
 
@@ -72,7 +69,10 @@ app.use("/api", (_req, res) => {
   res.status(404).json({ error: "Not found" });
 });
 
-const distDir = path.join(__dirname, "dist");
+// Resolved against the working directory (the app root both on Hostinger and
+// locally) rather than this file's own location, since this same source
+// compiles to dist/server.js for production — see package.json's "build".
+const distDir = path.join(process.cwd(), "dist");
 app.use(express.static(distDir));
 
 // SPA fallback: let react-router handle every non-API route client-side.
