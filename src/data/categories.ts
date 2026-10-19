@@ -1,4 +1,5 @@
 import type { CategoryMeta, CategorySlug, NavItem, Page } from "../types";
+import { SITE_IMAGES } from "./siteImages";
 
 export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
   "bridal-lehengas": {
@@ -6,8 +7,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     heading: "Bridal Lehengas",
     subhead:
       "Crafted for the most important day of your life — each bridal lehenga is a masterwork of embroidery, silk, and timeless silhouette.",
-    heroBanner:
-      "/lehenga/Hero.png",
+    heroBanner: SITE_IMAGES.lehengaHero,
     startingFrom: "Starting from ₹10,000",
   },
   "non-bridal-lehengas": {
@@ -15,8 +15,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     heading: "Non-Bridal Lehengas",
     subhead:
       "From sangeets to receptions and festive gatherings — statement lehengas that turn every occasion into a memory.",
-    heroBanner:
-      "/lehenga/Hero.png",
+    heroBanner: SITE_IMAGES.lehengaHero,
     startingFrom: "Starting from ₹7,000",
   },
   "sarees-silk": {
@@ -24,8 +23,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     heading: "Silk Sarees",
     subhead:
       "Pure silk woven into poetry — Kanjivaram, Mysore, Tussar, and beyond. Each yard a testament to India's greatest textile tradition.",
-    heroBanner:
-      "/sarees/Hero.png",
+    heroBanner: SITE_IMAGES.sareesHero,
     startingFrom: "Starting from ₹8,500",
   },
   "sarees-banarasi": {
@@ -33,8 +31,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     heading: "Banarasi Sarees",
     subhead:
       "Born in the holy city of Varanasi, woven with real zari and centuries of devotion. The crown jewel of Indian saree culture.",
-    heroBanner:
-      "/sarees/Hero.png",
+    heroBanner: SITE_IMAGES.sareesHero,
     startingFrom: "Starting from ₹12,000",
   },
   "sarees-net": {
@@ -42,8 +39,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     heading: "Net Sarees",
     subhead:
       "Sheer, ethereal, and endlessly glamorous. Our designer net sarees blend delicate embroidery with contemporary elegance.",
-    heroBanner:
-      "/sarees/Hero.png",
+    heroBanner: SITE_IMAGES.sareesHero,
     startingFrom: "Starting from ₹9,000",
   },
   "sarees-premium": {
@@ -51,8 +47,7 @@ export const CATEGORY_META: Record<CategorySlug, CategoryMeta> = {
     heading: "Premium Sarees",
     subhead:
       "Our most exclusive drapes — rare weaves, hand-finished embellishment, and limited-edition pieces reserved for the connoisseur.",
-    heroBanner:
-      "/sarees/Hero.png",
+    heroBanner: SITE_IMAGES.sareesHero,
     startingFrom: "Starting from ₹45,000",
   },
 };

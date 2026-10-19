@@ -1,4 +1,5 @@
 import GoldDivider from "../components/GoldDivider";
+import { SITE_IMAGES } from "../data/siteImages";
 
 export default function AboutPage() {
   return (
@@ -6,7 +7,7 @@ export default function AboutPage() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         <img
-          src="/AboutHero.png"
+          src={SITE_IMAGES.aboutHero}
           alt="Our Story"
           className="block w-full h-auto"
         />
@@ -84,7 +85,7 @@ export default function AboutPage() {
             className="relative aspect-[4/5] overflow-hidden rounded-[2px] bg-[#e8ddd5]"
           >
             <img
-              src="/aboutUs.png"
+              src={SITE_IMAGES.aboutUs}
               alt="MATWALJI craftsmanship"
               className="w-full h-full object-cover object-top"
             />

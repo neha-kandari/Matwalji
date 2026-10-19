@@ -6,6 +6,7 @@ import Newsletter from "../components/Newsletter";
 import GoldDivider from "../components/GoldDivider";
 import type { Page, Product, CategorySlug, HomeSection, HomeSectionId } from "../types";
 import { SOCIAL_LINKS } from "../data/social";
+import { SITE_IMAGES } from "../data/siteImages";
 
 // ─── Marquee Ticker ────────────────────────────────────────────────────────────
 const TICKER_ITEMS = [
@@ -50,9 +51,9 @@ function Hero() {
     <section className="relative h-[60vh] sm:h-[80vh] sm:min-h-[480px] overflow-hidden">
       <picture>
         {/* Portrait crop on small screens, wide crop from sm (640px) up */}
-        <source media="(max-width: 639px)" srcSet="/hero2.png" />
+        <source media="(max-width: 639px)" srcSet={SITE_IMAGES.hero2} />
         <img
-          src="/hero.png"
+          src={SITE_IMAGES.hero}
           alt="MATWALJI bridal lehengas"
           className="absolute inset-0 w-full h-full object-cover object-top"
         />
@@ -187,21 +188,21 @@ const CATEGORY_CONFIG = [
     label: "Bridal Lehengas",
     from: "From ₹10,000",
     count: "6 exclusive pieces",
-    img: "/lehenga/lehenga.png",
+    img: SITE_IMAGES.lehengaShowcase1,
   },
   {
     slug: "non-bridal-lehengas" as CategorySlug,
     label: "Non-Bridal Lehengas",
     from: "From ₹7,000",
     count: "6 pieces",
-    img: "/lehenga/lehenga2.png",
+    img: SITE_IMAGES.lehengaShowcase2,
   },
   {
     slug: "sarees-silk" as CategorySlug,
     label: "Silk Sarees",
     from: "From ₹8,500",
     count: "5 pieces",
-    img: "/sarees/silk.webp",
+    img: SITE_IMAGES.sareesSilk,
   },
   {
     slug: "sarees-banarasi" as CategorySlug,
@@ -215,7 +216,7 @@ const CATEGORY_CONFIG = [
     label: "Net Sarees",
     from: "From ₹9,000",
     count: "5 pieces",
-    img: "/sarees/net.png",
+    img: SITE_IMAGES.sareesNet,
   },
 ];
 
@@ -381,7 +382,7 @@ function CraftsmanshipStory({ setPage }: { setPage: (p: Page) => void }) {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[2fr_3fr]">
         <div className="relative min-h-[240px] overflow-hidden">
           <img
-            src="/ourHeritage.png"
+            src={SITE_IMAGES.ourHeritage}
             alt="Heritage craftsmanship"
             className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[1.6s] ease-out"
             style={{ transform: revealed ? "scale(1)" : "scale(1.08)" }}
@@ -662,8 +663,8 @@ function BridalBanner({ setPage }: { setPage: (p: Page) => void }) {
   return (
     <section className="relative overflow-hidden sm:min-h-[500px]">
       <picture>
-        <source media="(max-width: 639px)" srcSet="/exclusiveYoursMobile.png" />
-        <img src="/exclusiveYours.png"
+        <source media="(max-width: 639px)" srcSet={SITE_IMAGES.exclusiveYoursMobile} />
+        <img src={SITE_IMAGES.exclusiveYours}
           alt="Bridal collection" className="block w-full h-auto sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-top" />
       </picture>
       <div className="absolute inset-0" style={{ background: "rgba(42,7,16,0.6)" }} />

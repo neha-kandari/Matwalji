@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "start": "tsx server.ts",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
@@ -42,10 +43,13 @@
     "@radix-ui/react-tooltip": "1.1.8",
     "canvas-confetti": "1.9.4",
     "class-variance-authority": "0.7.1",
+    "cloudinary": "^2.11.0",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
     "date-fns": "3.6.0",
+    "dotenv": "^18.0.4",
     "embla-carousel-react": "8.6.0",
+    "express": "^5.1.0",
     "input-otp": "1.4.2",
     "lucide-react": "0.487.0",
     "mongodb": "^7.6.0",
@@ -68,9 +72,9 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/express": "^5.0.0",
     "@vercel/node": "^16.0.1",
     "@vitejs/plugin-react": "4.7.0",
-    "dotenv": "^18.0.4",
     "tailwindcss": "4.1.12",
     "tsx": "^4.23.15",
     "vite": "6.3.5"

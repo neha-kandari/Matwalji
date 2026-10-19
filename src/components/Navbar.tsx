@@ -4,6 +4,7 @@ import MatwaljiLogo from "./MatwaljiLogo";
 import { NAV_STRUCTURE } from "../data/categories";
 import type { Page, Product } from "../types";
 import { SOCIAL_LINKS } from "../data/social";
+import { SITE_IMAGES } from "../data/siteImages";
 
 interface Props {
   page: Page;
@@ -42,7 +43,7 @@ export default function Navbar({ page, setPage, setSelectedProduct, wishlistCoun
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
             <button onClick={() => navTo("home")}>
-              <MatwaljiLogo src="/logo.png" height={64} />
+              <MatwaljiLogo src={SITE_IMAGES.logo} height={64} />
             </button>
 
             {/* Desktop links */}

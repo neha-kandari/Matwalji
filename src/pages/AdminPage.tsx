@@ -54,9 +54,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = "w-full px-3.5 py-2.5 border outline-none text-sm transition-colors focus:border-[#C7A15B]";
 const inputStyle = { borderColor: "rgba(199,161,91,0.3)", background: "#fdfaf7", fontFamily: "var(--font-body)", color: "#252525" };
 
-// Downscales + re-encodes a photo before it's embedded as base64. A raw
-// phone/camera photo can be several MB — well past what fits in a request
-// body once base64-inflated — so this keeps uploads working without the
+// Downscales + re-encodes a photo into a base64 data URL before it's handed
+// to uploadToCloudinary. A raw phone/camera photo can be several MB — well
+// past what's needed for the site — so this keeps uploads fast without the
 // admin ever having to think about file size.
 function compressImageFile(file: File, maxDimension = 1600, quality = 0.82): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -88,6 +88,25 @@ function compressImageFile(file: File, maxDimension = 1600, quality = 0.82): Pro
     };
     reader.readAsDataURL(file);
   });
+}
+
+// Sends a compressed data URL to our server, which uploads it to Cloudinary
+// (credentials never reach the browser) and hands back the hosted image URL.
+// This is what every "Upload from PC" control stores, instead of the raw
+// base64 string — the product/section documents in MongoDB stay small, and
+// the photo is served from Cloudinary's CDN rather than from our own server.
+async function uploadToCloudinary(dataUrl: string, folder: string): Promise<string> {
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: dataUrl, folder }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || "Could not upload image.");
+  }
+  const { url } = await res.json();
+  return url as string;
 }
 
 // ─── Removable selection chip ───────────────────────────────────────────────────
@@ -311,21 +330,22 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
   const [errors, setErrors]         = useState<string[]>([]);
   const [imgMode, setImgMode]       = useState<"upload" | "url">("upload");
   const [uploading, setUploading]   = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [saving, setSaving]         = useState(false);
   const fileInputRef                = useRef<HTMLInputElement>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
     setUploading(true);
+    setUploadError(null);
     try {
       const compressed = await compressImageFile(file);
-      set("image", compressed);
-    } catch {
-      // Fall back to the raw file if it couldn't be decoded/resized for any reason.
-      const reader = new FileReader();
-      reader.onload = (ev) => set("image", ev.target?.result as string);
-      reader.readAsDataURL(file);
+      const url = await uploadToCloudinary(compressed, "matwalji/products");
+      set("image", url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Could not upload that image. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -515,18 +535,20 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
             </div>
             {imgMode === "upload" ? (
               <>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={uploading} />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed transition-all hover:border-[#C7A15B]"
+                  disabled={uploading}
+                  className="w-full flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed transition-all hover:border-[#C7A15B] disabled:opacity-60"
                   style={{ borderColor: "rgba(199,161,91,0.3)", color: "#C7A15B" }}
                 >
-                  <Upload size={22} />
+                  {uploading ? <Loader2 size={22} className="animate-spin" /> : <Upload size={22} />}
                   <span className="text-xs" style={{ fontFamily: "var(--font-body)", color: "#7a6a5a" }}>
-                    {uploading ? "Processing…" : "Click to choose an image"}
+                    {uploading ? "Uploading to Cloudinary…" : "Click to choose an image"}
                   </span>
                 </button>
+                {uploadError && <p className="mt-2 text-[11px]" style={{ color: "#9B1B30", fontFamily: "var(--font-body)" }}>{uploadError}</p>}
               </>
             ) : (
               <input
@@ -1615,7 +1637,9 @@ function GalleryEditor({ section, onSave }: GalleryEditorProps) {
     setBusy(true);
     setError(null);
     try {
-      const srcs = await Promise.all(files.map((f) => compressImageFile(f)));
+      const srcs = await Promise.all(
+        files.map(async (f) => uploadToCloudinary(await compressImageFile(f), "matwalji/home-sections"))
+      );
       setDraft((d) => {
         if (replaceAt !== null) {
           return { ...d, images: d.images.map((img, i) => (i === replaceAt ? { ...img, src: srcs[0] } : img)) };
@@ -1623,8 +1647,8 @@ function GalleryEditor({ section, onSave }: GalleryEditorProps) {
         const room = MAX_GALLERY_TILES - d.images.length;
         return { ...d, images: [...d.images, ...srcs.slice(0, room).map((src) => ({ src, alt: "" }))] };
       });
-    } catch {
-      setError("One of those photos could not be read. Try a different file.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "One of those photos could not be uploaded. Try a different file.");
     } finally {
       setBusy(false);
     }
