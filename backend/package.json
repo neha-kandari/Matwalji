@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "esbuild server.ts --bundle --platform=node --format=esm --outfile=server.js --packages=external",
     "dev": "tsx server.ts",
