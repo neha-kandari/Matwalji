@@ -1,0 +1,13 @@
+# SPA fallback: react-router handles routing client-side, so any request for
+# a path that isn't a real file on disk (e.g. /admin, /category/foo) must
+# still get index.html's content (not a 404) so the app can mount and render
+# the right route itself. The URL in the browser stays as the user typed it —
+# this is a server-side rewrite, not a redirect.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
