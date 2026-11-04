@@ -34,6 +34,9 @@ export interface Product {
   // in the product gallery (which links out to Instagram rather than hosting
   // a file) and the "visit us on Instagram" CTA.
   instagramUrl?: string;
+  // Hidden from the storefront (home, category pages) but kept in the admin
+  // panel, toggleable back at any time. Not a delete.
+  archived?: boolean;
 }
 
 export interface CategoryMeta {

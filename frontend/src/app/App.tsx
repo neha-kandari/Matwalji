@@ -268,6 +268,10 @@ export default function App() {
     return map;
   }, [filterOptions]);
 
+  // Archived products stay manageable in the admin panel (which gets the
+  // unfiltered `products`) but disappear from everything a visitor browses.
+  const visibleProducts = useMemo(() => products.filter((p) => !p.archived), [products]);
+
   const isCategory = CATEGORY_SLUGS.includes(page as CategorySlug);
   const isAdmin    = page === "admin";
 
@@ -306,7 +310,7 @@ export default function App() {
             wishlist={wishlist}
             onWishlist={toggleWishlist}
             onViewProduct={viewProduct}
-            products={products}
+            products={visibleProducts}
             homeSections={homeSections}
           />
           <Footer setPage={navigateTo} />
@@ -321,7 +325,7 @@ export default function App() {
             onWishlist={toggleWishlist}
             onViewProduct={viewProduct}
             setPage={navigateTo}
-            products={products}
+            products={visibleProducts}
             colorMap={colorMap}
           />
           <Footer setPage={navigateTo} />
@@ -336,7 +340,7 @@ export default function App() {
             onWishlist={toggleWishlist}
             setPage={navigateTo}
             onViewProduct={viewProduct}
-            products={products}
+            products={visibleProducts}
             colorMap={colorMap}
           />
           <Footer setPage={navigateTo} />

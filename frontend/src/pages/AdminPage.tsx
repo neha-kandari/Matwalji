@@ -6,6 +6,7 @@ import {
   Upload, CheckCircle2, XCircle, Loader2, Shirt, Scroll,
   LayoutGrid, List, SlidersHorizontal, Plus, Star, Sparkles, Instagram,
   Minus, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, RotateCcw,
+  Archive, ArchiveRestore,
 } from "lucide-react";
 import { CATEGORY_SLUGS, CATEGORY_META } from "../data/categories";
 import MatwaljiLogo from "../components/MatwaljiLogo";
@@ -866,11 +867,15 @@ function Overview({ products }: { products: Product[] }) {
 }
 
 // ─── Product grid card ──────────────────────────────────────────────────────────
-function ProductGridCard({ product, onEdit, onDelete }: { product: Product; onEdit: () => void; onDelete: () => void }) {
+function ProductGridCard({
+  product, onEdit, onDelete, onArchive,
+}: {
+  product: Product; onEdit: () => void; onDelete: () => void; onArchive: () => void;
+}) {
   return (
     <div
       className="group relative bg-white border overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
-      style={{ borderColor: "rgba(199,161,91,0.18)" }}
+      style={{ borderColor: "rgba(199,161,91,0.18)", opacity: product.archived ? 0.6 : 1 }}
     >
       <div className="relative overflow-hidden bg-[#e8ddd5]" style={{ aspectRatio: "3/4" }}>
         <img
@@ -878,7 +883,14 @@ function ProductGridCard({ product, onEdit, onDelete }: { product: Product; onEd
           alt={product.name}
           className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
         />
-        {product.tag && (
+        {product.archived ? (
+          <div
+            className="absolute top-2 left-2 px-2 py-0.5 text-[8.5px] tracking-[0.15em] uppercase flex items-center gap-1"
+            style={{ background: "#2A0710", color: "#C7A15B", fontFamily: "var(--font-body)" }}
+          >
+            <Archive size={9} /> Archived
+          </div>
+        ) : product.tag && (
           <div
             className="absolute top-2 left-2 px-2 py-0.5 text-[8.5px] tracking-[0.15em] uppercase"
             style={{ background: "#C7A15B", color: "#2A0710", fontFamily: "var(--font-body)" }}
@@ -897,6 +909,13 @@ function ProductGridCard({ product, onEdit, onDelete }: { product: Product; onEd
             title="Edit"
           >
             <Pencil size={14} style={{ color: "#2A0710" }} />
+          </button>
+          <button
+            onClick={onArchive}
+            className="w-9 h-9 flex items-center justify-center bg-white transition-colors hover:bg-[#C7A15B]"
+            title={product.archived ? "Unarchive" : "Archive"}
+          >
+            {product.archived ? <ArchiveRestore size={14} style={{ color: "#2A0710" }} /> : <Archive size={14} style={{ color: "#2A0710" }} />}
           </button>
           <button
             onClick={onDelete}
@@ -928,12 +947,14 @@ interface ProductsSectionProps {
   products: Product[];
   onEdit: (p: Product) => void;
   onDelete: (id: number) => Promise<boolean>;
+  onArchive: (p: Product) => Promise<boolean>;
   onAddNew: () => void;
 }
 
-function ProductsSection({ title, subtitle, icon: Icon, categories, products: allProducts, onEdit, onDelete, onAddNew }: ProductsSectionProps) {
+function ProductsSection({ title, subtitle, icon: Icon, categories, products: allProducts, onEdit, onDelete, onArchive, onAddNew }: ProductsSectionProps) {
   const [search, setSearch]           = useState("");
   const [catFilter, setCatFilter]     = useState<CategorySlug | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<"active" | "archived" | "all">("active");
   const [view, setView]               = useState<"grid" | "table">("grid");
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
@@ -941,6 +962,8 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
 
   const filtered = useMemo(() => {
     let list = groupProducts;
+    if (statusFilter === "active") list = list.filter((p) => !p.archived);
+    else if (statusFilter === "archived") list = list.filter((p) => p.archived);
     if (catFilter !== "all") list = list.filter((p) => p.category === catFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -951,7 +974,7 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
       );
     }
     return list;
-  }, [groupProducts, catFilter, search]);
+  }, [groupProducts, catFilter, statusFilter, search]);
 
   return (
     <div className="p-8">
@@ -1001,6 +1024,19 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
           </select>
           <ChevronDown size={11} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#C7A15B" }} />
         </div>
+        <div className="relative">
+          <select
+            className="pl-3.5 pr-8 py-2.5 border outline-none text-[10.5px] tracking-[0.1em] appearance-none focus:border-[#C7A15B]"
+            style={{ borderColor: "rgba(199,161,91,0.3)", background: "white", fontFamily: "var(--font-body)", color: "#3a2a1a" }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as "active" | "archived" | "all")}
+          >
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+            <option value="all">All statuses</option>
+          </select>
+          <ChevronDown size={11} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#C7A15B" }} />
+        </div>
         {/* View toggle */}
         <div className="flex border flex-shrink-0" style={{ borderColor: "rgba(199,161,91,0.3)" }}>
           {([
@@ -1029,7 +1065,7 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
         /* Grid view */
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((p) => (
-            <ProductGridCard key={p.id} product={p} onEdit={() => onEdit(p)} onDelete={() => setDeleteTarget(p)} />
+            <ProductGridCard key={p.id} product={p} onEdit={() => onEdit(p)} onDelete={() => setDeleteTarget(p)} onArchive={() => onArchive(p)} />
           ))}
         </div>
       ) : (
@@ -1038,7 +1074,7 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
           <div className="bg-white border min-w-[600px]" style={{ borderColor: "rgba(199,161,91,0.15)" }}>
             <div
               className="grid items-center px-4 py-3 border-b"
-              style={{ gridTemplateColumns: "48px 1fr 160px 110px 80px 90px", borderColor: "rgba(199,161,91,0.15)", background: "#fdfaf7" }}
+              style={{ gridTemplateColumns: "48px 1fr 160px 110px 80px 120px", borderColor: "rgba(199,161,91,0.15)", background: "#fdfaf7" }}
             >
               {["", "Product", "Category", "Price", "Tag", "Actions"].map((h) => (
                 <span key={h} className="text-[9px] tracking-[0.25em] uppercase" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{h}</span>
@@ -1049,9 +1085,9 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
               <div
                 key={p.id}
                 className="grid items-center px-4 py-3 border-b last:border-0 hover:bg-[#fdfaf7] transition-colors"
-                style={{ gridTemplateColumns: "48px 1fr 160px 110px 80px 90px", borderColor: "rgba(199,161,91,0.1)" }}
+                style={{ gridTemplateColumns: "48px 1fr 160px 110px 80px 120px", borderColor: "rgba(199,161,91,0.1)" }}
               >
-                <img src={p.image} alt={p.name} className="w-10 h-12 object-cover object-top flex-shrink-0 bg-[#e8ddd5]" />
+                <img src={p.image} alt={p.name} className="w-10 h-12 object-cover object-top flex-shrink-0 bg-[#e8ddd5]" style={{ opacity: p.archived ? 0.5 : 1 }} />
 
                 <div className="min-w-0 pr-4">
                   <p className="text-sm font-medium truncate" style={{ color: "#252525", fontFamily: "var(--font-display)" }}>{p.name}</p>
@@ -1063,7 +1099,11 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
                 <p className="text-sm font-semibold" style={{ color: "#2A0710", fontFamily: "var(--font-display)" }}>{p.price}</p>
 
                 <div>
-                  {p.tag ? (
+                  {p.archived ? (
+                    <span className="text-[9px] px-1.5 py-0.5 tracking-[0.1em] flex items-center gap-1 w-fit" style={{ background: "#2A0710", color: "#C7A15B", fontFamily: "var(--font-body)" }}>
+                      <Archive size={9} /> Archived
+                    </span>
+                  ) : p.tag ? (
                     <span className="text-[9px] px-1.5 py-0.5 tracking-[0.1em]" style={{ background: "rgba(199,161,91,0.15)", color: "#2A0710", fontFamily: "var(--font-body)" }}>
                       {p.tag}
                     </span>
@@ -1080,6 +1120,16 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
                     title="Edit"
                   >
                     <Pencil size={11} className="group-hover:text-[#C7A15B]" style={{ color: "#7a6a5a" }} />
+                  </button>
+                  <button
+                    onClick={() => onArchive(p)}
+                    className="w-7 h-7 border flex items-center justify-center transition-all hover:border-[#C7A15B] hover:bg-[#2A0710] group"
+                    style={{ borderColor: "rgba(199,161,91,0.3)" }}
+                    title={p.archived ? "Unarchive" : "Archive"}
+                  >
+                    {p.archived
+                      ? <ArchiveRestore size={11} className="group-hover:text-[#C7A15B]" style={{ color: "#7a6a5a" }} />
+                      : <Archive size={11} className="group-hover:text-[#C7A15B]" style={{ color: "#7a6a5a" }} />}
                   </button>
                   <button
                     onClick={() => setDeleteTarget(p)}
@@ -1991,6 +2041,19 @@ export default function AdminPage({
     return ok;
   }
 
+  // Archiving hides a product from the storefront (home, category pages)
+  // without deleting it — it stays here, toggleable back at any time.
+  async function handleArchiveToggle(p: Product): Promise<boolean> {
+    const archiving = !p.archived;
+    const result = await onUpdate({ ...p, archived: archiving });
+    setToast(
+      result.ok
+        ? { type: "success", message: `"${p.name}" was ${archiving ? "archived" : "unarchived"}.` }
+        : { type: "error", message: result.error ?? "Could not update this product. Please try again." }
+    );
+    return result.ok;
+  }
+
   function handleCancelForm() {
     setEditTarget(null);
     setTab(returnTab);
@@ -2158,6 +2221,7 @@ export default function AdminPage({
             products={products}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onArchive={handleArchiveToggle}
             onAddNew={() => handleAddNew("lehengas", LEHENGA_CATEGORIES[0])}
           />
         )}
@@ -2170,6 +2234,7 @@ export default function AdminPage({
             products={products}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onArchive={handleArchiveToggle}
             onAddNew={() => handleAddNew("sarees", SAREE_CATEGORIES[0])}
           />
         )}
