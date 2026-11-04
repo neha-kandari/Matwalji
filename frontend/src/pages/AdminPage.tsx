@@ -19,6 +19,7 @@ const ADMIN_PASSWORD = "matwalji@admin";
 // ─── Category groups (keeps Lehengas and Sarees managed as separate lists) ─────
 const LEHENGA_CATEGORIES: CategorySlug[] = CATEGORY_SLUGS.filter((s) => s.includes("lehenga"));
 const SAREE_CATEGORIES: CategorySlug[] = CATEGORY_SLUGS.filter((s) => s.startsWith("sarees"));
+const ALL_CATEGORIES: CategorySlug[] = CATEGORY_SLUGS;
 
 // ─── Blank product template ────────────────────────────────────────────────────
 function blankProduct(existingIds: number[], defaultCategory?: CategorySlug): Product {
@@ -948,13 +949,14 @@ interface ProductsSectionProps {
   onEdit: (p: Product) => void;
   onDelete: (id: number) => Promise<boolean>;
   onArchive: (p: Product) => Promise<boolean>;
-  onAddNew: () => void;
+  onAddNew?: () => void;
+  initialStatusFilter?: "active" | "archived" | "all";
 }
 
-function ProductsSection({ title, subtitle, icon: Icon, categories, products: allProducts, onEdit, onDelete, onArchive, onAddNew }: ProductsSectionProps) {
+function ProductsSection({ title, subtitle, icon: Icon, categories, products: allProducts, onEdit, onDelete, onArchive, onAddNew, initialStatusFilter = "active" }: ProductsSectionProps) {
   const [search, setSearch]           = useState("");
   const [catFilter, setCatFilter]     = useState<CategorySlug | "all">("all");
-  const [statusFilter, setStatusFilter] = useState<"active" | "archived" | "all">("active");
+  const [statusFilter, setStatusFilter] = useState<"active" | "archived" | "all">(initialStatusFilter);
   const [view, setView]               = useState<"grid" | "table">("grid");
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
@@ -991,13 +993,15 @@ function ProductsSection({ title, subtitle, icon: Icon, categories, products: al
             <p className="text-xs mt-0.5" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>{subtitle}</p>
           </div>
         </div>
-        <button
-          onClick={onAddNew}
-          className="flex items-center gap-2 px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase flex-shrink-0 transition-all hover:opacity-90"
-          style={{ background: "#2A0710", color: "#C7A15B", fontFamily: "var(--font-body)" }}
-        >
-          <PlusCircle size={13} /> Add {title.replace(/s$/, "")}
-        </button>
+        {onAddNew && (
+          <button
+            onClick={onAddNew}
+            className="flex items-center gap-2 px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase flex-shrink-0 transition-all hover:opacity-90"
+            style={{ background: "#2A0710", color: "#C7A15B", fontFamily: "var(--font-body)" }}
+          >
+            <PlusCircle size={13} /> Add {title.replace(/s$/, "")}
+          </button>
+        )}
       </div>
 
       {/* Search + filter + view toggle */}
@@ -1971,7 +1975,7 @@ function LoginGate({ onSuccess }: { onSuccess: () => void }) {
 }
 
 // ─── Admin Page ────────────────────────────────────────────────────────────────
-type AdminTab = "overview" | "lehengas" | "sarees" | "filters" | "home-featured" | "home-new-arrivals" | "home-capture-moments" | "add";
+type AdminTab = "overview" | "lehengas" | "sarees" | "archived" | "filters" | "home-featured" | "home-new-arrivals" | "home-capture-moments" | "add";
 
 interface AdminPageProps {
   products: Product[];
@@ -2099,13 +2103,15 @@ export default function AdminPage({
     return ok;
   }
 
-  const lehengaCount = products.filter((p) => LEHENGA_CATEGORIES.includes(p.category)).length;
-  const sareeCount   = products.filter((p) => SAREE_CATEGORIES.includes(p.category)).length;
+  const lehengaCount  = products.filter((p) => LEHENGA_CATEGORIES.includes(p.category)).length;
+  const sareeCount    = products.filter((p) => SAREE_CATEGORIES.includes(p.category)).length;
+  const archivedCount = products.filter((p) => p.archived).length;
 
   const NAV_ITEMS = [
     { id: "overview" as AdminTab, label: "Overview", icon: LayoutDashboard, count: undefined as number | undefined },
     { id: "lehengas"  as AdminTab, label: "Lehengas", icon: Shirt,  count: lehengaCount },
     { id: "sarees"    as AdminTab, label: "Sarees",   icon: Scroll, count: sareeCount },
+    { id: "archived"  as AdminTab, label: "Archived", icon: Archive, count: archivedCount },
     { id: "filters"   as AdminTab, label: "Filters",  icon: SlidersHorizontal, count: filterOptions.length },
     { id: "home-featured" as AdminTab, label: "Featured Pieces", icon: Star, count: undefined as number | undefined },
     { id: "home-new-arrivals" as AdminTab, label: "New Arrivals", icon: Sparkles, count: undefined as number | undefined },
@@ -2236,6 +2242,19 @@ export default function AdminPage({
             onDelete={handleDelete}
             onArchive={handleArchiveToggle}
             onAddNew={() => handleAddNew("sarees", SAREE_CATEGORIES[0])}
+          />
+        )}
+        {tab === "archived" && !editTarget && (
+          <ProductsSection
+            title="Archived Products"
+            subtitle="Hidden from the storefront — restore any item back to active at any time"
+            icon={Archive}
+            categories={ALL_CATEGORIES}
+            products={products}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onArchive={handleArchiveToggle}
+            initialStatusFilter="archived"
           />
         )}
         {tab === "filters" && !editTarget && (
