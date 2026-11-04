@@ -334,6 +334,10 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [saving, setSaving]         = useState(false);
   const fileInputRef                = useRef<HTMLInputElement>(null);
+  const additionalFileInputRef      = useRef<HTMLInputElement>(null);
+  const [additionalUploading, setAdditionalUploading]     = useState(false);
+  const [additionalUploadError, setAdditionalUploadError] = useState<string | null>(null);
+  const [urlInput, setUrlInput]     = useState("");
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -350,6 +354,45 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
     } finally {
       setUploading(false);
     }
+  }
+
+  // Additional gallery photos — same Cloudinary path as the main image, but
+  // multiple files at once, appended to the existing set.
+  async function handleAdditionalFilesPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith("image/"));
+    e.target.value = "";
+    if (files.length === 0) return;
+    setAdditionalUploading(true);
+    setAdditionalUploadError(null);
+    try {
+      const urls = await Promise.all(files.map(async (f) => uploadToCloudinary(await compressImageFile(f), "matwalji/products")));
+      setForm((f) => ({ ...f, images: [...f.images, ...urls] }));
+    } catch (err) {
+      setAdditionalUploadError(err instanceof Error ? err.message : "Could not upload one of those photos. Please try again.");
+    } finally {
+      setAdditionalUploading(false);
+    }
+  }
+
+  function addImageUrl() {
+    const url = urlInput.trim();
+    if (!url) return;
+    setForm((f) => ({ ...f, images: [...f.images, url] }));
+    setUrlInput("");
+  }
+
+  function removeImage(index: number) {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
+  }
+
+  function moveImage(index: number, dir: -1 | 1) {
+    setForm((f) => {
+      const target = index + dir;
+      if (target < 0 || target >= f.images.length) return f;
+      const images = [...f.images];
+      [images[index], images[target]] = [images[target], images[index]];
+      return { ...f, images };
+    });
   }
 
   function set<K extends keyof Product>(key: K, val: Product[K]) {
@@ -408,7 +451,10 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
     if (!validate()) return;
     setSaving(true);
     const priceFormatted = `₹ ${form.priceRaw.toLocaleString("en-IN")}`;
-    const ok = await onSave({ ...form, price: priceFormatted, images: form.images.length ? form.images : [form.image] });
+    // The main image always leads the gallery — additional photos used to
+    // silently replace it entirely when both were set.
+    const gallery = [form.image, ...form.images.filter((img) => img !== form.image)];
+    const ok = await onSave({ ...form, price: priceFormatted, images: gallery });
     setSaving(false);
     if (!ok) {
       setErrors(["Something went wrong while saving. Please check your connection and try again."]);
@@ -567,16 +613,65 @@ function ProductForm({ initial, filterOptions, onSave, onCancel, isEdit }: FormP
             )}
           </Field>
 
-          {/* Extra images */}
-          <Field label="Additional Image URLs (one per line)">
-            <textarea
-              rows={3}
-              className={inputCls + " resize-none"}
-              style={inputStyle}
-              value={(form.images ?? []).join("\n")}
-              onChange={(e) => set("images", e.target.value.split("\n").filter((l) => l.trim()))}
-              placeholder={"https://...\nhttps://..."}
-            />
+          {/* Extra images — the gallery shown on the product page, after the main image */}
+          <Field label={`Additional Photos${form.images.length ? ` (${form.images.length})` : ""}`}>
+            <p className="mb-3 text-[10.5px]" style={{ color: "#7a6a5a", fontFamily: "var(--font-body)" }}>
+              Shown in the product gallery after the main image, in this order.
+            </p>
+            {form.images.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
+                {form.images.map((src, i) => (
+                  <div key={i} className="relative border aspect-[3/4] overflow-hidden bg-[#fdfaf7]" style={{ borderColor: "rgba(199,161,91,0.2)" }}>
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-1 py-1" style={{ background: "rgba(42,7,16,0.75)" }}>
+                      <div className="flex">
+                        <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} className="p-0.5 disabled:opacity-30" aria-label="Move left">
+                          <ChevronLeft size={12} color="#F8F4EF" />
+                        </button>
+                        <button type="button" onClick={() => moveImage(i, 1)} disabled={i === form.images.length - 1} className="p-0.5 disabled:opacity-30" aria-label="Move right">
+                          <ChevronRight size={12} color="#F8F4EF" />
+                        </button>
+                      </div>
+                      <button type="button" onClick={() => removeImage(i)} className="p-0.5" aria-label="Remove photo">
+                        <Trash2 size={12} color="#F8F4EF" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input ref={additionalFileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleAdditionalFilesPick} disabled={additionalUploading} />
+            <button
+              type="button"
+              onClick={() => additionalFileInputRef.current?.click()}
+              disabled={additionalUploading}
+              className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed transition-all hover:border-[#C7A15B] disabled:opacity-60 mb-2"
+              style={{ borderColor: "rgba(199,161,91,0.3)", color: "#C7A15B" }}
+            >
+              {additionalUploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+              <span className="text-xs" style={{ fontFamily: "var(--font-body)", color: "#7a6a5a" }}>
+                {additionalUploading ? "Uploading to Cloudinary…" : "Add photos from PC (multiple allowed)"}
+              </span>
+            </button>
+            {additionalUploadError && <p className="mb-2 text-[11px]" style={{ color: "#9B1B30", fontFamily: "var(--font-body)" }}>{additionalUploadError}</p>}
+            <div className="flex gap-2">
+              <input
+                className={inputCls}
+                style={inputStyle}
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }}
+                placeholder="Or paste an image URL…"
+              />
+              <button
+                type="button"
+                onClick={addImageUrl}
+                className="px-4 border text-[10px] tracking-widest uppercase flex-shrink-0"
+                style={{ borderColor: "#C7A15B", color: "#C7A15B", fontFamily: "var(--font-body)" }}
+              >
+                Add
+              </button>
+            </div>
           </Field>
 
           {/* Colours + Sizes — dropdown pickers */}
